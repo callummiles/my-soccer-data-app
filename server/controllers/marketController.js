@@ -34,7 +34,7 @@ export const fetchAndStoreData = async (req, res) => {
       );
     }
     const data = await response.json();
-    console.log('Data fetched: ', JSON.stringify(data, null, 2));
+    //console.log('Data fetched: ', JSON.stringify(data, null, 2));
     await insertData(data);
     res.status(200).send('Data fetched and stored.');
   } catch (e) {

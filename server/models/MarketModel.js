@@ -27,11 +27,18 @@ export const insertMarket = async (market) => {
     };
 
     console.log('Market Data: ', JSON.stringify(marketData, null, 2));
-
+    ('Attempting to post market data to db...');
     const response = await client.post(basePath, marketData);
+    ('Data posted to db.');
     return response.data;
   } catch (e) {
-    console.error(e);
+    if (e.response) {
+      console.error('Error response data: ', e.response.data);
+      console.error('Error response status: ', e.response.status);
+      console.error('Error response headers: ', e.response.headers);
+    } else {
+      console.error('Error message: ', e.message);
+    }
   }
 };
 
