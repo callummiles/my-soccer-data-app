@@ -12,6 +12,7 @@ export const fetchAndStoreData = async (req, res) => {
     console.log('Attempting to contact endpoint...');
     const response = await fetch(BA_PRICES_ENDPOINT);
     console.log('Endpoint contacted.');
+    console.log(response);
     if (!response.ok) {
       throw new Error('Network response not ok.');
     }
