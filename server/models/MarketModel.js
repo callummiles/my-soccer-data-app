@@ -7,17 +7,17 @@ export const insertMarket = async (market) => {
     const client = await astraClient;
     console.log('Market ID;', typeof market.id);
     console.log('Market Status;', typeof market.status);
-    console.log('Market Timestamp:', typeof market.lastUpdated);
-    console.log('Market inPlay:', typeof market.inPlay);
-    console.log('Market inPlayTime:', market.inPlayTime);
-    console.log('Market Volume:', typeof market.volume);
+    // console.log('Market Timestamp:', typeof market.lastUpdated);
+    // console.log('Market inPlay:', typeof market.inPlay);
+    // console.log('Market inPlayTime:', market.inPlayTime);
+    // console.log('Market Volume:', typeof market.volume);
     const marketData = {
       id: market.id,
       status: market.status,
-      lastUpdated: new Date(market.lastUpdated).toISOString(),
-      inPlay: market.inPlay,
-      inPlayTime: market.inPlayTime,
-      volume: market.volume,
+      // lastUpdated: new Date(market.lastUpdated).toISOString(),
+      // inPlay: market.inPlay,
+      // inPlayTime: market.inPlayTime,
+      // volume: market.volume,
       // selections: market.selections.map((selection) => ({
       //   [selection.id]: {
       //     'lay1.prc': selection.lay1 ? selection.lay1.prc : null,
