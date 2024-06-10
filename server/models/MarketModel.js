@@ -8,7 +8,7 @@ export const insertMarket = async (market) => {
     const marketData = {
       id: market.id,
       status: market.status,
-      lastUpdated: new Date(market.lastUpdated).toISOString(),
+      lastUpdated: new Date(market.lastUpdated),
       inPlay: market.inPlay,
       inPlayTime: market.inPlayTime,
       volume: market.volume,
