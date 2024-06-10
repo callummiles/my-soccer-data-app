@@ -8,20 +8,21 @@ export const insertMarket = async (market) => {
     const marketData = {
       id: market.id,
       status: market.status,
-      lastUpdated: market.lastUpdated,
+      lastUpdated: new Date(market.lastUpdated).toISOString(),
       inPlay: market.inPlay,
       inPlayTime: market.inPlayTime,
       volume: market.volume,
       selections: market.selections.map((selection) => ({
-        id: selection.id,
-        lay1: selection.lay1
-          ? { prc: selection.lay1.prc, sz: selection.lay1.sz }
-          : null,
-        back1: selection.back1
-          ? { prc: selection.back1.prc, sz: selection.back1.sz }
-          : null,
-        LTP: selection.LTP,
-        vol: selection.vol,
+        [selection.id]: {
+          lay1: selection.lay1
+            ? { prc: selection.lay1.prc, sz: selection.lay1.sz }
+            : null,
+          back1: selection.back1
+            ? { prc: selection.back1.prc, sz: selection.back1.sz }
+            : null,
+          LTP: selection.LTP,
+          vol: selection.vol,
+        },
       })),
     };
 
