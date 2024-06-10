@@ -12,7 +12,7 @@ export const insertMarket = async (market) => {
     // console.log('Market inPlayTime:', market.inPlayTime);
     // console.log('Market Volume:', typeof market.volume);
     const marketData = {
-      id: market.id,
+      //id: market.id,
       status: market.status,
       lastUpdated: new Date(market.lastUpdated).toISOString(),
       inPlay: market.inPlay,
@@ -35,10 +35,7 @@ export const insertMarket = async (market) => {
     console.log(client);
     console.log(basePath);
     console.log(marketData);
-    const response = await client.post(
-      basePath,
-      JSON.stringify(marketData, null, 2)
-    );
+    const response = await client.put(`${basePath}/${market.id}`, marketData);
     console.log('Data posted to db.');
     return response.data;
   } catch (e) {
