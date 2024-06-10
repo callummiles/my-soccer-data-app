@@ -29,9 +29,12 @@ export const fetchAndStoreData = async (req, res) => {
     console.log('Endpoint contacted.');
     console.log(response);
     if (!response.ok) {
-      throw new Error('Network response not ok.');
+      throw new Error(
+        `Network response not ok: ${response.status} : ${response.statusText}`
+      );
     }
     const data = await response.json();
+    console.log('Data fetched: ', JSON.stringify(data, null, 2));
     await insertData(data);
     res.status(200).send('Data fetched and stored.');
   } catch (e) {
