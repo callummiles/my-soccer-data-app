@@ -5,6 +5,12 @@ const basePath = `/api/rest/v2/namespaces/testks/collections/markets`;
 export const insertMarket = async (market) => {
   try {
     const client = await astraClient;
+    console.log('Market ID;', typeof market.id);
+    console.log('Market Status;', typeof market.status);
+    console.log('Market Timestamp:', typeof market.lastUpdated);
+    console.log('Market inPlay:', typeof market.inPlay);
+    console.log('Market inPlayTime:', market.inPlayTime);
+    console.log('Market Volume:', typeof market.volume);
     const marketData = {
       id: market.id,
       status: market.status,
