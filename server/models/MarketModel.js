@@ -7,11 +7,11 @@ export const insertMarket = async (market) => {
     const client = await astraClient;
     const marketData = {
       id: market.id,
-      status: market.status,
-      lastUpdated: new Date(market.lastUpdated).toISOString(),
-      inPlay: market.inPlay,
-      inPlayTime: market.inPlayTime,
-      volume: market.volume,
+      // status: market.status,
+      // lastUpdated: new Date(market.lastUpdated).toISOString(),
+      // inPlay: market.inPlay,
+      // inPlayTime: market.inPlayTime,
+      // volume: market.volume,
       // selections: market.selections.map((selection) => ({
       //   [selection.id]: {
       //     'lay1.prc': selection.lay1 ? selection.lay1.prc : null,
