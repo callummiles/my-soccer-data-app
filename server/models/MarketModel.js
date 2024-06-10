@@ -14,12 +14,10 @@ export const insertMarket = async (market) => {
       volume: market.volume,
       selections: market.selections.map((selection) => ({
         [selection.id]: {
-          lay1: selection.lay1
-            ? { prc: selection.lay1.prc, sz: selection.lay1.sz }
-            : null,
-          back1: selection.back1
-            ? { prc: selection.back1.prc, sz: selection.back1.sz }
-            : null,
+          'lay1.prc': selection.lay1 ? selection.lay1.prc : null,
+          'lay1.sz': selection.lay1 ? selection.lay1.sz : null,
+          'back1.prc': selection.back1 ? selection.back1.prc : null,
+          'back1.sz': selection.back1 ? selection.back1.sz : null,
           LTP: selection.LTP,
           vol: selection.vol,
         },
