@@ -9,8 +9,23 @@ const { BA_PRICES_ENDPOINT } = process.env;
 
 export const fetchAndStoreData = async (req, res) => {
   try {
+    const rawReq = {
+      dataRequired: [
+        'BEST_PRICE_ONLY',
+        'INPLAY_INFO',
+        'LAST_TRADED_PRICE',
+        'VOLUME',
+      ],
+    };
+
     console.log('Attempting to contact endpoint...');
-    const response = await fetch(BA_PRICES_ENDPOINT);
+    const response = await fetch(BA_PRICES_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(rawReq),
+    });
     console.log('Endpoint contacted.');
     console.log(response);
     if (!response.ok) {
