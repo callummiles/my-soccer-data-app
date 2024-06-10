@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import express from 'express';
 import ViteExpress from 'vite-express';
-import userRoutes from './routes/userRoutes.js';
+import marketRoutes from './routes/marketRoutes.js';
 import { astraClient } from './config/astraClient.js';
 
 import dotenv from 'dotenv';
@@ -10,8 +10,9 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
+//app.use(bodyParser.json());
 
-app.use('/api', userRoutes);
+app.use('/api', marketRoutes);
 
 app.get('/message', (_, res) => res.send('Hello from express!'));
 
