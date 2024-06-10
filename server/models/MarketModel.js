@@ -27,9 +27,9 @@ export const insertMarket = async (market) => {
     };
 
     console.log('Market Data: ', JSON.stringify(marketData, null, 2));
-    ('Attempting to post market data to db...');
+    console.log('Attempting to post market data to db...');
     const response = await client.post(basePath, marketData);
-    ('Data posted to db.');
+    console.log('Data posted to db.');
     return response.data;
   } catch (e) {
     if (e.response) {
