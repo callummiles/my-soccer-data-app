@@ -28,25 +28,24 @@ export const insertMarket = async (market) => {
       //     vol: selection.vol,
       //   },
       // })),
+      name: market.name,
+      marketType: market.marketType,
+      eventId: market.eventId,
+      eventTypeId: market.eventTypeId,
+      startTime: market.startTime,
+      currentTime: new Date(),
     };
 
-    console.log('Market Data: ', JSON.stringify(marketData, null, 2));
+    //console.log('Market Data: ', JSON.stringify(marketData, null, 2));
     console.log('Attempting to post market data to db...');
-    console.log(client);
-    console.log(basePath);
-    console.log(marketData);
+    // console.log(client);
+    // console.log(basePath);
+    // console.log(marketData);
     const response = await client.put(`${basePath}/${market.id}`, marketData);
     console.log('Data posted to db.');
     return response.data;
   } catch (e) {
-    if (e.response) {
-      console.error('Error response data: ', e.response.data);
-      console.error('Error response status: ', e.response.status);
-      console.error('Error response headers: ', e.response.headers);
-    } else {
-      console.error('Error message: ', e.message);
-      console.error('Full error: ', e);
-    }
+    console.error(e);
   }
 };
 

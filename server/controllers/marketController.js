@@ -5,11 +5,11 @@ import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const { BA_PRICES_ENDPOINT } = process.env;
+const { BA_PRICES_ENDPOINT, BA_MARKETS_ENDPOINT } = process.env;
 
 export const fetchAndStoreData = async (req, res) => {
   try {
-    const rawReq = {
+    const rawPricesReq = {
       dataRequired: [
         'BEST_PRICE_ONLY',
         'INPLAY_INFO',
@@ -17,27 +17,76 @@ export const fetchAndStoreData = async (req, res) => {
         'VOLUME',
       ],
     };
+    const rawMarketsReq = {
+      dataRequired: [
+        'ID',
+        'NAME',
+        'MARKET_START_TIME',
+        'MARKET_INPLAY_STATUS',
+        'EVENT_ID',
+        'EVENT_TYPE_ID',
+        'MARKET_TYPE',
+      ],
+    };
 
-    console.log('Attempting to contact endpoint...');
-    const response = await fetch(BA_PRICES_ENDPOINT, {
+    console.log('Attempting to contact prices endpoint...');
+    const pricesResponse = await fetch(BA_PRICES_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(rawReq),
+      body: JSON.stringify(rawPricesReq),
     });
-    console.log('Endpoint contacted.');
-    console.log(response);
-    if (!response.ok) {
+    if (!pricesResponse.ok) {
       throw new Error(
-        `Network response not ok: ${response.status} : ${response.statusText}`
+        `Network response not ok: ${pricesResponse.status} : ${pricesResponse.statusText}`
       );
     }
-    const data = await response.json();
-    //console.log('Data fetched: ', JSON.stringify(data, null, 2));
+    const priceData = await pricesResponse.json();
+    console.log('Data fetched from BA_PRICES_ENDPOINT.');
+
+    console.log('Attempting to contact markets endpoint...');
+    const marketsResponse = await fetch(BA_MARKETS_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(rawMarketsReq),
+    });
+    if (!marketsResponse.ok) {
+      throw new Error(
+        `Network response not ok: ${marketsResponse.status} : ${marketsResponse.statusText}`
+      );
+    }
+    const marketData = await marketsResponse.json();
+    console.log('Data fetched from BA_MARKETS_ENDPOINT.');
+
+    const data = mergeData(priceData, marketData);
+
     await insertData(data);
     res.status(200).send('Data fetched and stored.');
   } catch (e) {
     res.status(500).send(`Error fetching or storing data: ${e.message}`);
   }
+};
+
+const mergeData = (priceData, marketData) => {
+  const data = priceData.result.markets.map((market) => {
+    const additionalData = marketData.result.markets.find(
+      (m) => m.id === market.id
+    );
+
+    if (additionalData) {
+      return {
+        ...market,
+        name: additionalData.name,
+        marketType: additionalData.marketType,
+        eventId: additionalData.eventId,
+        eventTypeId: additionalData.eventTypeId,
+        startTime: additionalData.startTime,
+      };
+    }
+    return market;
+  });
+  return { result: { data } };
 };
