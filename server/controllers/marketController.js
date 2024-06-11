@@ -73,9 +73,6 @@ export const fetchAndStoreData = async (req, res) => {
 };
 
 const mergeData = (priceData, marketData) => {
-  console.log(priceData);
-  console.log(priceData.result);
-  console.log(priceData.result.markets);
   const data = priceData.result.markets.map((market) => {
     const additionalData = marketData.result.markets.find(
       (m) => m.id === market.id
@@ -93,5 +90,6 @@ const mergeData = (priceData, marketData) => {
     }
     return market;
   });
+  console.log(data);
   return { result: { data } };
 };
