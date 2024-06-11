@@ -6,7 +6,7 @@ export const insertMarket = async (market) => {
   try {
     const client = await astraClient;
     const marketData = {
-      //id: market.id,
+      marketId: market.id,
       status: market.status,
       lastUpdated: new Date(market.lastUpdated).toISOString(),
       inPlay: market.inPlay,
@@ -24,13 +24,16 @@ export const insertMarket = async (market) => {
       // })),
       name: market.name,
       marketType: market.marketType,
-      eventId: market.eventId,
+      //eventId: market.eventId,
       eventTypeId: market.eventTypeId,
       startTime: market.startTime,
       currentTime: new Date(),
     };
     console.log('Attempting to post market data to db...');
-    const response = await client.post(`${basePath}/${market.id}`, marketData);
+    const response = await client.post(
+      `${basePath}/${market.eventId}`,
+      marketData
+    );
     console.log('Data posted to db.');
     return response.data;
   } catch (e) {
