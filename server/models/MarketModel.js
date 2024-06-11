@@ -1,10 +1,10 @@
-import { astraClient } from '../config/astraClient.js';
+import client from '../config/astraClient.js';
 
 const basePath = `/api/rest/v2/namespaces/testks/collections/markets`;
 
 export const insertMarket = async (market) => {
   try {
-    const client = await astraClient;
+    await client.connect();
     const marketData = {
       marketId: market.id,
       status: market.status,
