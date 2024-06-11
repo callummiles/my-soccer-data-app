@@ -5,12 +5,6 @@ const basePath = `/api/rest/v2/namespaces/testks/collections/markets`;
 export const insertMarket = async (market) => {
   try {
     const client = await astraClient;
-    // console.log('Market ID;', typeof market.id);
-    // console.log('Market Status;', typeof market.status);
-    // console.log('Market Timestamp:', typeof market.lastUpdated);
-    // console.log('Market inPlay:', typeof market.inPlay);
-    // console.log('Market inPlayTime:', market.inPlayTime);
-    // console.log('Market Volume:', typeof market.volume);
     const marketData = {
       //id: market.id,
       status: market.status,
@@ -35,13 +29,8 @@ export const insertMarket = async (market) => {
       startTime: market.startTime,
       currentTime: new Date(),
     };
-
-    //console.log('Market Data: ', JSON.stringify(marketData, null, 2));
     console.log('Attempting to post market data to db...');
-    // console.log(client);
-    // console.log(basePath);
-    // console.log(marketData);
-    const response = await client.put(`${basePath}/${market.id}`, marketData);
+    const response = await client.post(`${basePath}/${market.id}`, marketData);
     console.log('Data posted to db.');
     return response.data;
   } catch (e) {
