@@ -7,7 +7,7 @@ dotenv.config();
 const { ASTRA_DB_ID, ASTRA_DB_REGION, ASTRA_DB_APP_TOKEN } = process.env;
 
 export const createTable = async () => {
-  const url = `https://${ASTRA_DB_ID}-${ASTRA_DB_REGION}.apps.astra.datastax.com//api/rest/v2/schemas/keyspaces/testks/tables`;
+  const url = `https://${ASTRA_DB_ID}-${ASTRA_DB_REGION}.apps.astra.datastax.com/api/rest/v2/schemas/keyspaces/testks/tables`;
 
   const tableDef = {
     name: 'markets',
