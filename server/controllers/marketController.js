@@ -61,7 +61,9 @@ export const fetchAndStoreData = async (req, res) => {
     const marketData = await marketsResponse.json();
     console.log('Data fetched from BA_MARKETS_ENDPOINT.');
 
+    console.log('Merging data...');
     const data = mergeData(priceData, marketData);
+    console.log('Data merged...');
 
     await insertData(data);
     res.status(200).send('Data fetched and stored.');
@@ -71,6 +73,9 @@ export const fetchAndStoreData = async (req, res) => {
 };
 
 const mergeData = (priceData, marketData) => {
+  console.log(priceData);
+  console.log(priceData.result);
+  console.log(priceData.result.markets);
   const data = priceData.result.markets.map((market) => {
     const additionalData = marketData.result.markets.find(
       (m) => m.id === market.id
