@@ -64,6 +64,7 @@ export const fetchAndStoreData = async (req, res) => {
     console.log('Merging data...');
     const data = mergeData(priceData, marketData);
     console.log('Data merged...');
+    console.log(data);
 
     await insertData(data);
     res.status(200).send('Data fetched and stored.');
@@ -90,6 +91,5 @@ const mergeData = (priceData, marketData) => {
     }
     return market;
   });
-  console.log(data);
   return { result: { data } };
 };
