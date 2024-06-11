@@ -24,16 +24,13 @@ export const insertMarket = async (market) => {
       // })),
       name: market.name,
       marketType: market.marketType,
-      //eventId: market.eventId,
+      eventId: market.eventId,
       eventTypeId: market.eventTypeId,
       startTime: market.startTime,
-      currentTime: new Date(),
+      //currentTime: new Date(),
     };
     console.log('Attempting to post market data to db...');
-    const response = await client.post(
-      `${basePath}/${market.eventId}`,
-      marketData
-    );
+    const response = await client.put(`${basePath}/${new Date()}`, marketData);
     console.log('Data posted to db.');
     return response.data;
   } catch (e) {
