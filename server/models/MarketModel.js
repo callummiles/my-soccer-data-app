@@ -30,7 +30,10 @@ export const insertMarket = async (market) => {
       //currentTime: new Date(),
     };
     console.log('Attempting to post market data to db...');
-    const response = await client.put(`${basePath}/${new Date()}`, marketData);
+    const response = await client.put(
+      `${basePath}/${new Date().toISOString()}`,
+      marketData
+    );
     console.log('Data posted to db.');
     return response.data;
   } catch (e) {
