@@ -35,20 +35,25 @@ export const createTable = async () => {
     },
   };
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Cassandra-Token': ASTRA_DB_APP_TOKEN,
-    },
-    body: JSON.stringify(tableDef),
-  });
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Cassandra-Token': ASTRA_DB_APP_TOKEN,
+      },
+      body: JSON.stringify(tableDef),
+    });
 
-  if (response.ok) {
+    if (!response.ok) {
+      console.error(`HTTP Error: ${response.status} : ${response.statusText}`);
+      const responseText = await response.text();
+      console.error('Response Text: ', responseText);
+    }
+
     const jsonResponse = await response.json();
-    console.log('Table created successfully: ', jsonResponse);
-  } else {
-    const errorResponse = await response.json();
-    console.log('Error creating table: ', errorResponse);
+    console.log('Table created: ', jsonResponse);
+  } catch (error) {
+    console.error('Error creating table: ', error);
   }
 };
