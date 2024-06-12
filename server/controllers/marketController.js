@@ -56,7 +56,7 @@ export const fetchInterval = (req, res) => {
     console.log('Market data is not cached');
     return res
       .status(400)
-      .send('MArket data not yet cached. Fetch & cache the data first.');
+      .send('Market data not yet cached. Fetch & cache the data first.');
   }
 
   const interval = parseInt(req.query.interval, 10) || 10000;

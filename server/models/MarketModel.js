@@ -6,7 +6,7 @@ export const insertMarketInDB = async (market) => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  console.log(market);
+  //console.log(market);
 
   const selectionsJSON = JSON.stringify(market.selections);
 
