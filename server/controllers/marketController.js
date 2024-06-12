@@ -51,22 +51,30 @@ export const fetchOnce = async (req, res) => {
 const intervalMap = new Map();
 
 export const fetchInterval = (req, res) => {
+  console.log('fetchInterval called.');
   if (!marketDataCache.isMarketDataCached()) {
+    console.log('Market data is not cached');
     return res
       .status(400)
       .send('MArket data not yet cached. Fetch & cache the data first.');
   }
 
   const interval = parseInt(req.query.interval, 10) || 10000;
+  console.log(`Interval set to ${interval} milliseconds.`);
   const markets = marketDataCache.getMarketData();
+  console.log(`Markets to schedule intervals for: ${markets.length}`);
 
   markets.forEach((market) => {
     const startTime = new Date(market.startTime);
     const fetchStartTime = new Date(startTime.getTime() - 5 * 60 * 1000);
+    console.log(
+      `Scheduling interval for market ${market.id}, start time: ${startTime}, fetch start: ${fetchStartTime}`
+    );
 
     scheduleJob(fetchStartTime, () => {
       const intID = setInterval(async () => {
         try {
+          console.log(`Fetching data for market ${market.id}`);
           const data = await fetchData();
           await insertDataInDB(data);
           console.log(`Data fetched successfully for market ${market.id}`);
