@@ -10,7 +10,7 @@ export const fetchOnce = async (req, res) => {
 
     if (!marketDataCache.isMarketDataCached()) {
       marketDataCache.setMarketData(data.result.markets);
-      console.log('Market data fetched and cached.');
+      //console.log('Market data fetched and cached.');
     } else {
       console.log('Market data already cached.');
     }
@@ -21,32 +21,6 @@ export const fetchOnce = async (req, res) => {
     res.status(500).send(`Error fetching or storing data: ${e.message}`);
   }
 };
-
-// const intervalHandler = () => {
-//   let intID = null;
-
-//   return (req, res) => {
-//     const interval = parseInt(req.query.interval, 10) || 10000;
-
-//     if (intID) {
-//       clearInterval(intID);
-//     }
-
-//     intID = setInterval(async () => {
-//       try {
-//         const data = await fetchData();
-//         await insertDataInDB(data);
-//         console.log('Data fetched successfully.');
-//       } catch (e) {
-//         console.error('Error fetching data: ', e.message);
-//       }
-//     }, interval);
-
-//     res.send(`Interval started with ${interval / 1000} seconds.`);
-//   };
-// };
-
-// export const fetchInterval = intervalHandler();
 
 const intervalMap = new Map();
 

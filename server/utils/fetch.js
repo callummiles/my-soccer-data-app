@@ -27,7 +27,7 @@ const rawMarketsReq = {
 };
 
 export const fetchData = async () => {
-  console.log('Attempting to contact prices endpoint...');
+  //console.log('Attempting to contact prices endpoint...');
   const pricesResponse = await fetch(BA_PRICES_ENDPOINT, {
     method: 'POST',
     headers: {
@@ -41,9 +41,9 @@ export const fetchData = async () => {
     );
   }
   const priceData = await pricesResponse.json();
-  console.log('Data fetched from BA_PRICES_ENDPOINT.');
+  //console.log('Data fetched from BA_PRICES_ENDPOINT.');
 
-  console.log('Attempting to contact markets endpoint...');
+  //console.log('Attempting to contact markets endpoint...');
   const marketsResponse = await fetch(BA_MARKETS_ENDPOINT, {
     method: 'POST',
     headers: {
@@ -57,11 +57,11 @@ export const fetchData = async () => {
     );
   }
   const marketData = await marketsResponse.json();
-  console.log('Data fetched from BA_MARKETS_ENDPOINT.');
+  //console.log('Data fetched from BA_MARKETS_ENDPOINT.');
 
-  console.log('Merging data...');
+  //console.log('Merging data...');
   const data = mergeData(priceData, marketData);
-  console.log('Data merged...');
+  //console.log('Data merged...');
 
   return data;
 };

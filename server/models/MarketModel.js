@@ -27,9 +27,9 @@ export const insertMarketInDB = async (market) => {
   ];
 
   try {
-    console.log('Attempting to insert markets to db...');
+    //console.log('Attempting to insert markets to db...');
     await client.execute(query, params, { prepare: true });
-    console.log('Market data inserted successfully.');
+    //console.log('Market data inserted successfully.');
   } catch (error) {
     console.error('Failed to insert market data: ', error);
   }
@@ -41,7 +41,7 @@ export const insertDataInDB = async (data) => {
     for (const market of markets) {
       await insertMarketInDB(market);
     }
-    console.log('All market data inserted.');
+    //console.log('All market data inserted.');
   } catch (error) {
     console.error('Failed to insert all data: ', error);
   }
