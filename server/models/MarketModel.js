@@ -55,6 +55,8 @@ export const insertMarketInDB = async (market) => {
 
   console.log(market);
 
+  const selectionsJSON = JSON.stringify(market.selections);
+
   const params = [
     market.id,
     market.status,
@@ -66,7 +68,7 @@ export const insertMarketInDB = async (market) => {
     market.marketType,
     market.eventId,
     market.eventTypeId,
-    market.selections,
+    selectionsJSON,
     new Date(market.startTime),
     new Date(),
   ];
