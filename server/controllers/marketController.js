@@ -68,10 +68,13 @@ export const fetchInterval = (req, res) => {
     const startTime = new Date(market.startTime);
     const fetchStartTime = new Date(startTime.getTime() - 5 * 60 * 1000);
     console.log(
-      `Scheduling interval for market ${market.id}, start time: ${startTime}, fetch start: ${fetchStartTime}`
+      `Scheduling interval for market ${
+        market.id
+      }, start time: ${startTime}, fetch start: ${fetchStartTime}, current: ${new Date()}`
     );
 
     scheduleJob(fetchStartTime, () => {
+      console.log(`Job started for market ${market.id} at ${new Date()}`);
       const intID = setInterval(async () => {
         try {
           console.log(`Fetching data for market ${market.id}`);
