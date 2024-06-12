@@ -73,23 +73,45 @@ export const fetchInterval = (req, res) => {
       `Scheduling interval for market ${market.id}, start time: ${startTime}, fetch start: ${fetchStartTime}, current: ${now}`
     );
 
+    const fetchMarketData = async () => {
+      try {
+        console.log(`Fetching data for market ${market.id} at ${new Date()}`);
+        const data = await fetchData();
+        const marketData = data.result.markets.find((m) => m.id === market.id);
+        if (marketData) {
+          await insertDataInDB({ result: { markets: [marketData] } });
+          console.log(
+            `Data fetched and stored successfully for market ${market.id}.`
+          );
+        } else {
+          console.log(`No data found for market ${market.id}`);
+        }
+      } catch (e) {
+        console.error(
+          `Error fetching data for market ${market.id}: `,
+          e.message
+        );
+      }
+    };
+
     if (fetchStartTime <= now) {
       console.log(
         `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
       );
-      const intID = setInterval(async () => {
-        try {
-          console.log(`Fetching data for market ${market.id} at ${now}`);
-          const data = await fetchData();
-          await insertDataInDB(data);
-          console.log(`Data fetched successfully for market ${market.id}`);
-        } catch (e) {
-          console.error(
-            `Error fetching data for market ${market.id}: `,
-            e.message
-          );
-        }
-      }, interval);
+      // const intID = setInterval(async () => {
+      //   try {
+      //     console.log(`Fetching data for market ${market.id} at ${now}`);
+      //     const data = await fetchData();
+      //     await insertDataInDB(data);
+      //     console.log(`Data fetched successfully for market ${market.id}`);
+      //   } catch (e) {
+      //     console.error(
+      //       `Error fetching data for market ${market.id}: `,
+      //       e.message
+      //     );
+      //   }
+      // }, interval);
+      const intID = setInterval(fetchMarketData, interval);
 
       intervalMap.set(market.id, intID);
 
@@ -97,19 +119,20 @@ export const fetchInterval = (req, res) => {
     } else {
       scheduleJob(fetchStartTime, () => {
         console.log(`Job started for market ${market.id} at ${new Date()}`);
-        const intID = setInterval(async () => {
-          try {
-            console.log(`Fetching data for market ${market.id}`);
-            const data = await fetchData();
-            await insertDataInDB(data);
-            console.log(`Data fetched successfully for market ${market.id}`);
-          } catch (e) {
-            console.error(
-              `Error fetching data for market ${market.id}: `,
-              e.message
-            );
-          }
-        }, interval);
+        // const intID = setInterval(async () => {
+        //   try {
+        //     console.log(`Fetching data for market ${market.id}`);
+        //     const data = await fetchData();
+        //     await insertDataInDB(data);
+        //     console.log(`Data fetched successfully for market ${market.id}`);
+        //   } catch (e) {
+        //     console.error(
+        //       `Error fetching data for market ${market.id}: `,
+        //       e.message
+        //     );
+        //   }
+        // }, interval);
+        const intID = setInterval(fetchMarketData, interval);
 
         intervalMap.set(market.id, intID);
 
