@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { insertData } from '../models/MarketModel.js';
+import { insertDataInDB } from '../models/MarketModel.js';
 import fetch from 'node-fetch';
 
 import dotenv from 'dotenv';
@@ -64,9 +64,8 @@ export const fetchAndStoreData = async (req, res) => {
     console.log('Merging data...');
     const data = mergeData(priceData, marketData);
     console.log('Data merged...');
-    console.log(data);
 
-    await insertData(data);
+    await insertDataInDB(data);
     res.status(200).send('Data fetched and stored.');
   } catch (e) {
     res.status(500).send(`Error fetching or storing data: ${e.message}`);
