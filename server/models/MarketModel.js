@@ -49,9 +49,11 @@ import client from '../config/astraClient.js';
 
 export const insertMarketInDB = async (market) => {
   const query = `
-    INSERT INTO markets (market_id, status, last_updated, in_play, in_play_time, volume, name, market_type, event_id, event_type_id, start_time, current_time)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO markets (market_id, status, last_updated, in_play, in_play_time, volume, name, market_type, event_id, event_type_id, selections, start_time, current_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
+
+  console.log(market);
 
   const params = [
     market.id,
@@ -64,13 +66,13 @@ export const insertMarketInDB = async (market) => {
     market.marketType,
     market.eventId,
     market.eventTypeId,
+    market.selections,
     new Date(market.startTime),
     new Date(),
   ];
 
   try {
     console.log('Attempting to insert markets to db...');
-    console.log('Market data to insert: ', JSON.stringify(params, null, 2));
     await client.execute(query, params, { prepare: true });
     console.log('Market data inserted successfully.');
   } catch (error) {
