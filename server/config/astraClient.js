@@ -11,10 +11,13 @@ const authProvider = new cassandra.auth.PlainTextAuthProvider(
   ASTRA_DB_APP_TOKEN
 );
 
+console.log(ASTRA_DB_APP_TOKEN);
+console.log(ASTRA_DB_SECURE_BUNDLE_PATH);
+
 const client = new cassandra.Client({
   cloud,
   authProvider,
-  keyspace: 'testks',
+  keyspace: 'bfex_data',
 });
 
 export default client;

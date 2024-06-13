@@ -14,7 +14,8 @@ dist-ssr
 
 # Editor directories and files
 newtest-token.json
-secure-connect-newtest.zip
+soccer_data_db-token.json
+secure-connect-soccer-data-db.zip
 .env
 .vscode/*
 !.vscode/extensions.json
