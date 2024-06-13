@@ -6,11 +6,13 @@ import marketDataCache from '../utils/marketDataCache.js';
 
 export const fetchOnce = async (req, res) => {
   try {
+    console.log(
+      `Fetching initial data for market ${market.id} at ${new Date()}`
+    );
     const data = await fetchData();
 
     if (!marketDataCache.isMarketDataCached()) {
       marketDataCache.setMarketData(data.result.markets);
-      //console.log('Market data fetched and cached.');
     } else {
       console.log('Market data already cached.');
     }
@@ -33,9 +35,7 @@ export const fetchOnce = async (req, res) => {
 const intervalMap = new Map();
 
 export const fetchInterval = (req, res) => {
-  console.log('fetchInterval called.');
   if (!marketDataCache.isMarketDataCached()) {
-    console.log('Market data is not cached');
     return res
       .status(400)
       .send('Market data not yet cached. Fetch & cache the data first.');
@@ -44,7 +44,6 @@ export const fetchInterval = (req, res) => {
   const interval = parseInt(req.query.interval, 10) || 10000;
   console.log(`Interval set to ${interval} milliseconds.`);
   const markets = marketDataCache.getMarketData();
-  console.log(`Markets to schedule intervals for: ${markets.length}`);
 
   const now = new Date();
 
