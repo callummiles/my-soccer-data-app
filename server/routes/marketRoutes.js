@@ -1,8 +1,14 @@
 import express from 'express';
-import { fetchAndStoreData } from '../controllers/marketController.js';
+import {
+  fetchOnce,
+  fetchInterval,
+  endIntervalFetch,
+} from '../controllers/marketController.js';
 
 const router = express.Router();
 
-router.get('/fetchAndStore', fetchAndStoreData);
+router.get('/fetchOnce', fetchOnce);
+router.get('/fetchInterval', fetchInterval);
+router.get('/endIntervalFetch', endIntervalFetch);
 
 export default router;

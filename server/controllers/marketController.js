@@ -1,95 +1,114 @@
 /* eslint-disable no-undef */
-import { insertData } from '../models/MarketModel.js';
-import fetch from 'node-fetch';
+import { scheduleJob } from 'node-schedule';
+import { insertDataInDB } from '../models/MarketModel.js';
+import { fetchData } from '../utils/fetch.js';
+import marketDataCache from '../utils/marketDataCache.js';
 
-import dotenv from 'dotenv';
-dotenv.config();
-
-const { BA_PRICES_ENDPOINT, BA_MARKETS_ENDPOINT } = process.env;
-
-export const fetchAndStoreData = async (req, res) => {
+export const fetchOnce = async (req, res) => {
   try {
-    const rawPricesReq = {
-      dataRequired: [
-        'BEST_PRICE_ONLY',
-        'INPLAY_INFO',
-        'LAST_TRADED_PRICE',
-        'VOLUME',
-      ],
-    };
-    const rawMarketsReq = {
-      dataRequired: [
-        'ID',
-        'NAME',
-        'MARKET_START_TIME',
-        'MARKET_INPLAY_STATUS',
-        'EVENT_ID',
-        'EVENT_TYPE_ID',
-        'MARKET_TYPE',
-      ],
-    };
+    console.log(
+      `Fetching initial data for market ${market.id} at ${new Date()}`
+    );
+    const data = await fetchData();
 
-    console.log('Attempting to contact prices endpoint...');
-    const pricesResponse = await fetch(BA_PRICES_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(rawPricesReq),
-    });
-    if (!pricesResponse.ok) {
-      throw new Error(
-        `Network response not ok: ${pricesResponse.status} : ${pricesResponse.statusText}`
-      );
+    if (!marketDataCache.isMarketDataCached()) {
+      marketDataCache.setMarketData(data.result.markets);
+    } else {
+      console.log('Market data already cached.');
     }
-    const priceData = await pricesResponse.json();
-    console.log('Data fetched from BA_PRICES_ENDPOINT.');
 
-    console.log('Attempting to contact markets endpoint...');
-    const marketsResponse = await fetch(BA_MARKETS_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(rawMarketsReq),
-    });
-    if (!marketsResponse.ok) {
-      throw new Error(
-        `Network response not ok: ${marketsResponse.status} : ${marketsResponse.statusText}`
-      );
+    const filteredMarkets = data.result.markets.filter(
+      (market) => market.status !== 'CLOSED'
+    );
+
+    if (filteredMarkets.length > 0) {
+      await insertDataInDB({ result: { markets: filteredMarkets } });
+      res.status(200).send('Data fetched and stored.');
+    } else {
+      res.status(200).send('No open markets to store.');
     }
-    const marketData = await marketsResponse.json();
-    console.log('Data fetched from BA_MARKETS_ENDPOINT.');
-
-    console.log('Merging data...');
-    const data = mergeData(priceData, marketData);
-    console.log('Data merged...');
-    console.log(data);
-
-    await insertData(data);
-    res.status(200).send('Data fetched and stored.');
   } catch (e) {
     res.status(500).send(`Error fetching or storing data: ${e.message}`);
   }
 };
 
-const mergeData = (priceData, marketData) => {
-  const markets = priceData.result.markets.map((market) => {
-    const additionalData = marketData.result.markets.find(
-      (m) => m.id === market.id
+const intervalMap = new Map();
+
+export const fetchInterval = (req, res) => {
+  if (!marketDataCache.isMarketDataCached()) {
+    return res
+      .status(400)
+      .send('Market data not yet cached. Fetch & cache the data first.');
+  }
+
+  const interval = parseInt(req.query.interval, 10) || 10000;
+  console.log(`Interval set to ${interval} milliseconds.`);
+  const markets = marketDataCache.getMarketData();
+
+  const now = new Date();
+
+  markets.forEach((market) => {
+    const startTime = new Date(market.startTime);
+    const fetchStartTime = new Date(startTime.getTime() - 5 * 60 * 1000);
+    console.log(
+      `Scheduling interval for market ${market.id}, start time: ${startTime}, fetch start: ${fetchStartTime}, current: ${now}`
     );
 
-    if (additionalData) {
-      return {
-        ...market,
-        name: additionalData.name,
-        marketType: additionalData.marketType,
-        eventId: additionalData.eventId,
-        eventTypeId: additionalData.eventTypeId,
-        startTime: additionalData.startTime,
-      };
+    const fetchMarketData = async () => {
+      try {
+        console.log(`Fetching data for market ${market.id} at ${new Date()}`);
+        const data = await fetchData();
+        const marketData = data.result.markets.find((m) => m.id === market.id);
+        if (marketData && marketData.status !== 'CLOSED') {
+          await insertDataInDB({ result: { markets: [marketData] } });
+          console.log(
+            `Data fetched and stored successfully for market ${market.id}.`
+          );
+        } else {
+          console.log(`No data found for market ${market.id}`);
+        }
+      } catch (e) {
+        console.error(
+          `Error fetching data for market ${market.id}: `,
+          e.message
+        );
+      }
+    };
+
+    if (fetchStartTime <= now) {
+      console.log(
+        `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
+      );
+      fetchMarketData(market);
+      const intID = setInterval(fetchMarketData, interval);
+
+      intervalMap.set(market.id, intID);
+
+      console.log(`Interval started immediately for market ${market.id}`);
+    } else {
+      scheduleJob(fetchStartTime, () => {
+        console.log(`Job started for market ${market.id} at ${new Date()}`);
+        fetchMarketData(market);
+        const intID = setInterval(fetchMarketData, interval);
+
+        intervalMap.set(market.id, intID);
+
+        console.log(
+          `Interval scheduled to start at ${fetchStartTime} for market ${market.id}`
+        );
+      });
     }
-    return market;
   });
-  return { result: { markets } };
+
+  res.send('Intervals scheduled for all markets.');
+};
+
+export const endIntervalFetch = (req, res) => {
+  intervalMap.forEach((intID, marketId) => {
+    clearInterval(intID);
+    console.log(`Interval for market ${marketId} stopped.`);
+  });
+
+  intervalMap.clear();
+  res.send('All intervals ended.');
 };
