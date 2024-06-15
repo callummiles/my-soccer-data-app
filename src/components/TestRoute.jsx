@@ -4,14 +4,22 @@ const TestRoute = () => {
   const [message, setMessage] = useState('');
 
   const handleTestRoute = () => {
-    fetch('/message')
-      .then((response) => response.json())
-      .then((data) => {
-        setMessage(data.message);
-      })
-      .catch((error) => {
-        console.error('Error testing route: ', error);
-      });
+    if (message !== '') {
+      setMessage('');
+    } else {
+      fetch('/message')
+        .then((response) => {
+          //console.log(response);
+          return response.json();
+        })
+        .then((data) => {
+          //console.log(data);
+          setMessage(data.message);
+        })
+        .catch((error) => {
+          console.error('Error testing route: ', error);
+        });
+    }
   };
 
   return (
