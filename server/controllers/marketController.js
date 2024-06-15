@@ -4,10 +4,32 @@ import { insertDataInDB } from '../models/MarketModel.js';
 import { fetchData } from '../utils/fetch.js';
 import marketDataCache from '../utils/marketDataCache.js';
 
+// const mockFetchData = async () => {
+//   return {
+//     result: {
+//       markets: [
+//         {
+//           id: 'market1',
+//           status: 'OPEN',
+//           startTime: new Date(),
+//           name: 'Market 1',
+//         },
+//         {
+//           id: 'market2',
+//           status: 'OPEN',
+//           startTime: new Date(),
+//           name: 'Market 2',
+//         },
+//       ],
+//     },
+//   };
+// };
+
 export const fetchOnce = async (req, res) => {
   try {
     console.log(`Fetching initial data for market at ${new Date()}`);
     const data = await fetchData();
+    //const data = await mockFetchData();
 
     if (!marketDataCache.isMarketDataCached()) {
       marketDataCache.setMarketData(data.result.markets);
@@ -21,6 +43,7 @@ export const fetchOnce = async (req, res) => {
 
     if (filteredMarkets.length > 0) {
       await insertDataInDB({ result: { markets: filteredMarkets } });
+      //console.log('Mock insert.');
       res.status(200).send('Data fetched and stored.');
     } else {
       res.status(200).send('No open markets to store.');
@@ -56,9 +79,11 @@ export const fetchInterval = (req, res) => {
       try {
         console.log(`Fetching data for market ${market.id} at ${new Date()}`);
         const data = await fetchData();
+        //const data = await mockFetchData();
         const marketData = data.result.markets.find((m) => m.id === market.id);
         if (marketData && marketData.status !== 'CLOSED') {
           await insertDataInDB({ result: { markets: [marketData] } });
+          //console.log('Mock insert.');
           console.log(
             `Data fetched and stored successfully for market ${market.id}.`
           );

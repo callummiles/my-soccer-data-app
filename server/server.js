@@ -8,11 +8,15 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
+
 app.use(express.json());
 
 app.use('/api', marketRoutes);
 
-app.get('/message', (_, res) => res.send('Hello from express!'));
+app.get('/message', (_, res) => {
+  // res.send('Hello from express!')
+  res.json({ message: 'Hello from express!' });
+});
 
 ViteExpress.listen(app, 3000, async () => {
   try {
