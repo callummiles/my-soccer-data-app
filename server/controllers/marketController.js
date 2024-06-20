@@ -4,32 +4,10 @@ import { insertDataInDB } from '../models/MarketModel.js';
 import { fetchData } from '../utils/fetch.js';
 import marketDataCache from '../utils/marketDataCache.js';
 
-// const mockFetchData = async () => {
-//   return {
-//     result: {
-//       markets: [
-//         {
-//           id: 'market1',
-//           status: 'OPEN',
-//           startTime: new Date(),
-//           name: 'Market 1',
-//         },
-//         {
-//           id: 'market2',
-//           status: 'OPEN',
-//           startTime: new Date(),
-//           name: 'Market 2',
-//         },
-//       ],
-//     },
-//   };
-// };
-
 export const fetchOnce = async (req, res) => {
   try {
-    console.log(`Fetching initial data for market at ${new Date()}`);
+    //console.log(`Fetching initial data for market at ${new Date()}`);
     const data = await fetchData();
-    //const data = await mockFetchData();
 
     if (!marketDataCache.isMarketDataCached()) {
       marketDataCache.setMarketData(data.result.markets);
@@ -43,7 +21,6 @@ export const fetchOnce = async (req, res) => {
 
     if (filteredMarkets.length > 0) {
       await insertDataInDB({ result: { markets: filteredMarkets } });
-      //console.log('Mock insert.');
       res.status(200).send('Data fetched and stored.');
     } else {
       res.status(200).send('No open markets to store.');
@@ -63,7 +40,7 @@ export const fetchInterval = (req, res) => {
   }
 
   const interval = parseInt(req.query.interval, 10) || 10000;
-  console.log(`Interval set to ${interval} milliseconds.`);
+  //console.log(`Interval set to ${interval} milliseconds.`);
   const markets = marketDataCache.getMarketData();
 
   const now = new Date();
@@ -71,22 +48,20 @@ export const fetchInterval = (req, res) => {
   markets.forEach((market) => {
     const startTime = new Date(market.startTime);
     const fetchStartTime = new Date(startTime.getTime() - 5 * 60 * 1000);
-    console.log(
-      `Scheduling interval for market ${market.id}, start time: ${startTime}, fetch start: ${fetchStartTime}, current: ${now}`
-    );
+    // console.log(
+    //   `Scheduling interval for market ${market.id}, start time: ${startTime}, fetch start: ${fetchStartTime}, current: ${now}`
+    // );
 
     const fetchMarketData = async () => {
       try {
-        console.log(`Fetching data for market ${market.id} at ${new Date()}`);
+        //console.log(`Fetching data for market ${market.id} at ${new Date()}`);
         const data = await fetchData();
-        //const data = await mockFetchData();
         const marketData = data.result.markets.find((m) => m.id === market.id);
         if (marketData && marketData.status !== 'CLOSED') {
           await insertDataInDB({ result: { markets: [marketData] } });
-          //console.log('Mock insert.');
-          console.log(
-            `Data fetched and stored successfully for market ${market.id}.`
-          );
+          // console.log(
+          //   `Data fetched and stored successfully for market ${market.id}.`
+          // );
         } else {
           console.log(`No data found for market ${market.id}`);
         }
@@ -99,26 +74,26 @@ export const fetchInterval = (req, res) => {
     };
 
     if (fetchStartTime <= now) {
-      console.log(
-        `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
-      );
+      // console.log(
+      //   `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
+      // );
       fetchMarketData(market);
       const intID = setInterval(fetchMarketData, interval);
 
       intervalMap.set(market.id, intID);
 
-      console.log(`Interval started immediately for market ${market.id}`);
+      // console.log(`Interval started immediately for market ${market.id}`);
     } else {
       scheduleJob(fetchStartTime, () => {
-        console.log(`Job started for market ${market.id} at ${new Date()}`);
+        // console.log(`Job started for market ${market.id} at ${new Date()}`);
         fetchMarketData(market);
         const intID = setInterval(fetchMarketData, interval);
 
         intervalMap.set(market.id, intID);
 
-        console.log(
-          `Interval scheduled to start at ${fetchStartTime} for market ${market.id}`
-        );
+        // console.log(
+        //   `Interval scheduled to start at ${fetchStartTime} for market ${market.id}`
+        // );
       });
     }
   });
@@ -129,7 +104,7 @@ export const fetchInterval = (req, res) => {
 export const endIntervalFetch = (req, res) => {
   intervalMap.forEach((intID, marketId) => {
     clearInterval(intID);
-    console.log(`Interval for market ${marketId} stopped.`);
+    // console.log(`Interval for market ${marketId} stopped.`);
   });
 
   intervalMap.clear();
