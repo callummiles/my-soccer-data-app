@@ -6,7 +6,7 @@ import marketDataCache from '../utils/marketDataCache.js';
 
 export const fetchOnce = async (req, res) => {
   try {
-    //console.log(`Fetching initial data for market at ${new Date()}`);
+    console.log(`Fetching initial data for market at ${new Date()}`);
     const data = await fetchData();
 
     if (!marketDataCache.isMarketDataCached()) {
@@ -40,7 +40,7 @@ export const fetchInterval = (req, res) => {
   }
 
   const interval = parseInt(req.query.interval, 10) || 10000;
-  //console.log(`Interval set to ${interval} milliseconds.`);
+  console.log(`Interval set to ${interval} milliseconds.`);
   const markets = marketDataCache.getMarketData();
 
   const now = new Date();
