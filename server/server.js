@@ -22,7 +22,9 @@ app.get('/message', (_, res) => {
 ViteExpress.listen(app, 3000, async () => {
   try {
     //await client.connect();
-    const query = 'SELECT * FROM bfex_data.markets LIMIT 1;';
+    const query = {
+      cql: 'SELECT * FROM bfex_data.markets LIMIT 1;',
+    };
     const result = await promisedClient.executeQuery(query);
     console.log('Astra DB client initialized. Data: ', result);
     console.log('Server is listening...');
