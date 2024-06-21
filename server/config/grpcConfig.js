@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 import dotenv from 'dotenv';
+import grpc from '@grpc/grpc-js';
 import {
   StargateBearerToken,
   StargateClient,

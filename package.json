@@ -11,6 +11,7 @@
     "start": "node server/server.js"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.10.9",
     "@stargate-oss/stargate-grpc-node-client": "^0.2.3",
     "cassandra-driver": "^4.7.2",
     "dotenv": "^16.4.5",
