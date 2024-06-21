@@ -20,20 +20,40 @@ app.get('/message', (_, res) => {
   res.json({ message: 'Hello from express!' });
 });
 
-ViteExpress.listen(app, 3000, async () => {
+// ViteExpress.listen(app, 3000, async () => {
+//   try {
+//     //await client.connect();
+//     const query = new Query();
+//     const queryString = 'SELECT * FROM bfex_data.markets LIMIT 1;';
+//     query.setCql(queryString);
+//     const result = await promisedClient.executeQuery(query);
+//     console.log(
+//       'Astra DB client initialized. Data: ',
+//       result.array[0][0][0][0][0]
+//     );
+//     console.log('Server is listening...');
+//   } catch (e) {
+//     console.error('Failed to initialize Astra DB client: ', e);
+//     process.exit(1);
+//   }
+// });
+
+(async () => {
   try {
-    //await client.connect();
     const query = new Query();
-    const queryString = 'SELECT * FROM bfex_data.markets LIMIT 1;';
-    query.setCql(queryString);
+    const queryStr = 'SELECT * FROM bfex_data.markets LIMIT 1;';
+    query.setCql(queryStr);
+
     const result = await promisedClient.executeQuery(query);
-    console.log(
-      'Astra DB client initialized. Data: ',
-      result.array[0][0][0][0][0]
-    );
-    console.log('Server is listening...');
+    console.log('Astra DB initialized. Data: ', result.array[0]);
+
+    const port = process.env.PORT || 3000;
+
+    ViteExpress.listen(app, port, '0.0.0.0', () => {
+      console.log(`Server listening on port ${port}...`);
+    });
   } catch (e) {
-    console.error('Failed to initialize Astra DB client: ', e);
+    console.error('Failed to init Astra DB: ', e);
     process.exit(1);
   }
-});
+})();
