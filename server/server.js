@@ -7,6 +7,8 @@ import promisedClient from './config/grpcConfig.js';
 import { Query } from '@stargate-oss/stargate-grpc-node-client';
 
 import dotenv from 'dotenv';
+import http from 'http';
+
 dotenv.config();
 
 const app = express();
@@ -49,7 +51,11 @@ app.get('/message', (_, res) => {
 
     const port = process.env.PORT || 3000;
 
-    ViteExpress.listen(app, port, '0.0.0.0', () => {
+    const server = http.createServer(app);
+
+    ViteExpress.config({ app, server });
+
+    server.listen(port, '0.0.0.0', () => {
       console.log(`Server listening on port ${port}...`);
     });
   } catch (e) {
