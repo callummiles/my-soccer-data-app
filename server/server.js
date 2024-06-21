@@ -4,6 +4,7 @@ import ViteExpress from 'vite-express';
 import marketRoutes from './routes/marketRoutes.js';
 // import client from './config/astraClient.js';
 import promisedClient from './config/grpcConfig.js';
+import { Query } from '@stargate-oss/stargate-grpc-node-client';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -22,9 +23,9 @@ app.get('/message', (_, res) => {
 ViteExpress.listen(app, 3000, async () => {
   try {
     //await client.connect();
-    const query = {
-      cql: 'SELECT * FROM bfex_data.markets LIMIT 1;',
-    };
+    const query = new Query();
+    const queryString = 'SELECT * FROM bfex_data.markets LIMIT 1;';
+    query.setCql(queryString);
     const result = await promisedClient.executeQuery(query);
     console.log('Astra DB client initialized. Data: ', result);
     console.log('Server is listening...');
