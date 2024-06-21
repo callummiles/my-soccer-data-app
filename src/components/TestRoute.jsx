@@ -9,11 +9,11 @@ const TestRoute = () => {
     } else {
       fetch('/message')
         .then((response) => {
-          //console.log(response);
+          console.log(response);
           return response.json();
         })
         .then((data) => {
-          //console.log(data);
+          console.log(data);
           setMessage(data.message);
         })
         .catch((error) => {
