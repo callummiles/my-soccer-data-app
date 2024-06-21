@@ -16,7 +16,6 @@ dist-ssr
 newtest-token.json
 soccer_data_db-token.json
 secure-connect-soccer-data-db.zip
-secure-connect-soccer-data-db.zip.b64
 .env
 .vscode/*
 !.vscode/extensions.json
