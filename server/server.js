@@ -2,7 +2,8 @@
 import express from 'express';
 import ViteExpress from 'vite-express';
 import marketRoutes from './routes/marketRoutes.js';
-import client from './config/astraClient.js';
+// import client from './config/astraClient.js';
+import promisedClient from './config/grpcConfig.js';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -20,7 +21,8 @@ app.get('/message', (_, res) => {
 
 ViteExpress.listen(app, 3000, async () => {
   try {
-    await client.connect();
+    //await client.connect();
+    await promisedClient.executeQuery(query);
     console.log('Astra DB client initialized.');
     console.log('Server is listening...');
   } catch (e) {
