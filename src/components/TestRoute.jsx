@@ -10,7 +10,7 @@ const TestRoute = () => {
       fetch('/message')
         .then((response) => {
           console.log(response);
-          return response.json();
+          return response.text();
         })
         .then((data) => {
           console.log(data);
