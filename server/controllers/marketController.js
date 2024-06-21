@@ -62,8 +62,8 @@ export const fetchInterval = (req, res) => {
           // console.log(
           //   `Data fetched and stored successfully for market ${market.id}.`
           // );
-        } else {
-          console.log(`No data found for market ${market.id}`);
+          // } else {
+          //   console.log(`No data found for market ${market.id}`);
         }
       } catch (e) {
         console.error(
@@ -74,9 +74,9 @@ export const fetchInterval = (req, res) => {
     };
 
     if (fetchStartTime <= now) {
-      // console.log(
-      //   `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
-      // );
+      console.log(
+        `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
+      );
       fetchMarketData(market);
       const intID = setInterval(fetchMarketData, interval);
 
@@ -85,7 +85,7 @@ export const fetchInterval = (req, res) => {
       // console.log(`Interval started immediately for market ${market.id}`);
     } else {
       scheduleJob(fetchStartTime, () => {
-        // console.log(`Job started for market ${market.id} at ${new Date()}`);
+        console.log(`Job started for market ${market.id} at ${new Date()}`);
         fetchMarketData(market);
         const intID = setInterval(fetchMarketData, interval);
 
@@ -104,7 +104,7 @@ export const fetchInterval = (req, res) => {
 export const endIntervalFetch = (req, res) => {
   intervalMap.forEach((intID, marketId) => {
     clearInterval(intID);
-    // console.log(`Interval for market ${marketId} stopped.`);
+    console.log(`Interval for market ${marketId} stopped.`);
   });
 
   intervalMap.clear();
