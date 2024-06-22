@@ -27,7 +27,7 @@ const rawMarketsReq = {
 };
 
 export const fetchData = async () => {
-  console.log('Entering fetch data function...');
+  console.log('Fetching price data: ', BA_PRICES_ENDPOINT);
   const pricesResponse = await fetch(BA_PRICES_ENDPOINT, {
     method: 'POST',
     headers: {
