@@ -18,7 +18,7 @@ const credentials = grpc.credentials.combineChannelCredentials(
   bearerToken
 );
 
-console.log(credentials);
+// console.log(credentials);
 
 // const stargateClient = new StargateClient(astra_uri, grpc.credentials.createInsecure());
 

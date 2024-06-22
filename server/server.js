@@ -7,7 +7,7 @@ import promisedClient from './config/grpcConfig.js';
 import { Query } from '@stargate-oss/stargate-grpc-node-client';
 
 import dotenv from 'dotenv';
-import http from 'http';
+// import http from 'http';
 
 dotenv.config();
 
@@ -47,17 +47,15 @@ app.get('/message', (_, res) => {
     query.setCql(queryStr);
 
     const result = await promisedClient.executeQuery(query);
-    console.log('Astra DB initialized. Data: ', result.array[0]);
+    console.log('Astra DB initialized. Data: ', result.array[0][0][0]);
 
     const port = process.env.PORT || 3000;
 
-    const server = http.createServer(app);
-
-    ViteExpress.config({ app, server });
-
-    server.listen(port, '0.0.0.0', () => {
-      console.log(`Server listening on port ${port}...`);
+    const server = app.listen(port, '0.0.0.0', () => {
+      console.log(`Server is listening on port ${port}...`);
     });
+
+    ViteExpress.bind(app, server);
   } catch (e) {
     console.error('Failed to init Astra DB: ', e);
     process.exit(1);
