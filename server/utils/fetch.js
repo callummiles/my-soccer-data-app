@@ -41,6 +41,7 @@ export const fetchData = async () => {
     );
   }
   const priceData = await pricesResponse.json();
+  console.log('Price data fetched. Moving onto market data...');
 
   const marketsResponse = await fetch(BA_MARKETS_ENDPOINT, {
     method: 'POST',
