@@ -5,6 +5,7 @@ dotenv.config();
 
 const { ASTRA_DB_SECURE_BUNDLE_PATH, ASTRA_DB_APP_TOKEN } = process.env;
 
+console.log(process.env);
 console.log(ASTRA_DB_APP_TOKEN);
 console.log(ASTRA_DB_SECURE_BUNDLE_PATH);
 
