@@ -1,4 +1,5 @@
-import client from '../config/astraClient.js';
+//import client from '../config/astraClient.js';
+import promisedClient from '../config/grpcConfig';
 
 export const insertMarketInDB = async (market) => {
   const query = `
@@ -29,7 +30,7 @@ export const insertMarketInDB = async (market) => {
   ];
 
   try {
-    await client.execute(query, params, { prepare: true });
+    await promisedClient.execute(query, params, { prepare: true });
   } catch (error) {
     console.error('Failed to insert market data: ', error);
   }
