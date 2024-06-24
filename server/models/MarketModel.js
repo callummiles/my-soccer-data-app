@@ -1,5 +1,5 @@
 //import client from '../config/astraClient.js';
-import promisedClient from '../config/grpcConfig';
+import promisedClient from '../config/grpcConfig.js';
 
 export const insertMarketInDB = async (market) => {
   const query = `
