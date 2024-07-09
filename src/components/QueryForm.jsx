@@ -72,17 +72,24 @@ const QueryForm = () => {
       <div>
         <h2>Results</h2>
         {results.length > 0 ? (
-          <ul>
-            {results.map((result, index) => (
-              <li key={index}>
-                {Object.entries(result).map(([key, value]) => (
-                  <div key={key}>
-                    <strong>{key}:</strong> {JSON.stringify(value)}
-                  </div>
+          <table>
+            <thead>
+              <tr>
+                {Object.keys(results[0]).map((key) => (
+                  <th key={key}>{key}</th>
                 ))}
-              </li>
-            ))}
-          </ul>
+              </tr>
+            </thead>
+            <tbody>
+              {results.map((result, index) => (
+                <tr key={index}>
+                  {Object.values(result).map((value, idx) => (
+                    <td key={idx}>{JSON.stringify(value)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : (
           <p>No results found</p>
         )}
