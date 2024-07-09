@@ -1,4 +1,7 @@
 /* eslint-disable no-undef */
+import promisedClient from '../config/grpcConfig.js';
+import { Query } from '@stargate-oss/stargate-grpc-node-client';
+
 import { scheduleJob } from 'node-schedule';
 import { insertDataInDB } from '../models/MarketModel.js';
 import { fetchData } from '../utils/fetch.js';
@@ -109,4 +112,53 @@ export const endIntervalFetch = (req, res) => {
 
   intervalMap.clear();
   res.send('All intervals ended.');
+};
+
+export const queryMarketData = async (req, res) => {
+  //const { eventId, marketId } = req.body;
+  const queryStr =
+    "SELECT * FROM bfex_data.markets WHERE event_id = '33374056' AND market_id = '1.230148216'";
+  const query = new Query();
+  query.setCql(queryStr);
+
+  //query.bind([eventId, marketId]);
+
+  try {
+    const result = await promisedClient.executeQuery(query);
+
+    // Extract column headers
+    const columnHeaders = result.array[0][0].map((col) => col[1]);
+
+    console.log('Columns: ', columnHeaders);
+
+    console.log(
+      'Result Array[0][1]:',
+      JSON.stringify(result.array[0][1], null, 2)
+    );
+
+    // Extract data rows
+    const dataRows = result.array[0][1].map((row) => {
+      const rowData = {};
+      if (row && row[0]) {
+        row[0].forEach((colData, index) => {
+          if (colData && Array.isArray(colData)) {
+            // Find the last non-null value in the array
+            const nonNullValues = colData.filter((val) => val !== null);
+            rowData[columnHeaders[index]] =
+              nonNullValues.length > 0
+                ? nonNullValues[nonNullValues.length - 1]
+                : null;
+          }
+        });
+      }
+      return rowData;
+    });
+
+    console.log('Data Rows:', dataRows);
+
+    res.json(dataRows);
+  } catch (error) {
+    console.error('Failed to fetch data: ', error);
+    res.status(500).json({ error: 'Failed to fetch data.' });
+  }
 };

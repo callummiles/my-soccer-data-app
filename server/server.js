@@ -7,12 +7,14 @@ import promisedClient from './config/grpcConfig.js';
 import { Query } from '@stargate-oss/stargate-grpc-node-client';
 
 import dotenv from 'dotenv';
+import cors from 'cors';
 // import http from 'http';
 
 dotenv.config();
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.use('/api', marketRoutes);

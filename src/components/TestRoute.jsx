@@ -5,6 +5,7 @@ const TestRoute = () => {
 
   const handleTestRoute = () => {
     if (message !== '') {
+      console.log('Resetting message.');
       setMessage('');
     } else {
       fetch('/message')
@@ -13,7 +14,7 @@ const TestRoute = () => {
           return response.json();
         })
         .then((data) => {
-          //console.log(data);
+          console.log(data);
           setMessage(data.message);
         })
         .catch((error) => {

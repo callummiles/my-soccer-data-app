@@ -4,6 +4,7 @@
 import './App.css';
 import TestRoute from './components/TestRoute.jsx';
 import Buttons from './components/Buttons.jsx';
+import QueryForm from './components/QueryForm.jsx';
 
 function App() {
   //const [count, setCount] = useState(0);
@@ -34,6 +35,7 @@ function App() {
         <h3>Market Data Fetcher</h3>
         <TestRoute />
         <Buttons />
+        <QueryForm />
       </div>
     </>
   );
