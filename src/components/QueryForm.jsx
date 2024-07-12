@@ -48,6 +48,29 @@ const QueryForm = () => {
     }
   };
 
+  const renderSelection = (selection) => {
+    return (
+      <ul>
+        {Object.entries(selection).map(([key, value]) => (
+          <li key={key}>
+            {key}:{' '}
+            {typeof value === 'object' ? (
+              <ul>
+                {Object.entries(value).map(([nestedKey, nestedValue]) => (
+                  <li key={nestedKey}>
+                    {nestedKey}: {nestedValue}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              value
+            )}
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
   return (
     <div>
       <h1>Query Cassandra Database</h1>
@@ -80,11 +103,58 @@ const QueryForm = () => {
                 ))}
               </tr>
             </thead>
-            <tbody>
+            {/* <tbody>
               {results.map((result, index) => (
                 <tr key={index}>
                   {Object.values(result).map((value, idx) => (
                     <td key={idx}>{JSON.stringify(value)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody> */}
+            {/* <tbody>
+              {results.map((result, index) => (
+                <tr key={index}>
+                  {Object.entries(result).map(([key, value]) => (
+                    <td key={key}>
+                      {key === 'selections' ? (
+                        <ul>
+                          {value.map((selection, idx) => (
+                            <li key={idx}>
+                              {Object.entries(selection).map(
+                                ([selKey, selValue]) => (
+                                  <div key={selKey}>
+                                    <strong>{selKey}</strong>:{' '}
+                                    {JSON.stringify(selValue)}
+                                  </div>
+                                )
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        JSON.stringify(value)
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody> */}
+            <tbody>
+              {results.map((result, index) => (
+                <tr key={index}>
+                  {Object.entries(result).map(([key, value]) => (
+                    <td key={key}>
+                      {key === 'selections' ? (
+                        <ul>
+                          {value.map((selection, idx) => (
+                            <li key={idx}>{renderSelection(selection)}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        JSON.stringify(value)
+                      )}
+                    </td>
                   ))}
                 </tr>
               ))}

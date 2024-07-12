@@ -31,6 +31,13 @@ export const queryPagedData = async (eventId, marketId, lastTimestamp) => {
         }
       });
     }
+    if (rowData.selections) {
+      try {
+        rowData.selections = JSON.parse(rowData.selections);
+      } catch (error) {
+        console.error('Error parsing selections JSON:', error);
+      }
+    }
     return rowData;
   });
 
