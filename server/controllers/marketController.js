@@ -5,6 +5,7 @@ import { Query } from '@stargate-oss/stargate-grpc-node-client';
 import { scheduleJob } from 'node-schedule';
 import { insertDataInDB } from '../models/MarketModel.js';
 import { fetchData } from '../utils/fetch.js';
+import { queryPagedData } from '../utils/query.js';
 import marketDataCache from '../utils/marketDataCache.js';
 
 export const fetchOnce = async (req, res) => {
@@ -115,48 +116,81 @@ export const endIntervalFetch = (req, res) => {
 };
 
 export const queryMarketData = async (req, res) => {
-  //const { eventId, marketId } = req.body;
-  const queryStr =
-    "SELECT * FROM bfex_data.markets WHERE event_id = '33374056' AND market_id = '1.230148216'";
-  const query = new Query();
-  query.setCql(queryStr);
+  const { eventId, marketId } = req.body;
+  if (!eventId || !marketId) {
+    return res.status(400).json({ error: 'eventId and marketId are required' });
+  }
 
-  //query.bind([eventId, marketId]);
+  let allDataRows = [];
+  let lastTimestamp = null;
+  let hasMoreData = true;
 
   try {
-    const result = await promisedClient.executeQuery(query);
+    while (hasMoreData) {
+      const { dataRows, lastTimestamp: newLastTimestamp } =
+        await queryPagedData(eventId, marketId, lastTimestamp);
 
-    // Extract column headers
-    const columnHeaders = result.array[0][0].map((col) => col[1]);
-
-    console.log('Columns: ', columnHeaders);
-
-    console.log(
-      'Result Array[0][1]:',
-      JSON.stringify(result.array[0][1], null, 2)
-    );
-
-    // Extract data rows
-    const dataRows = result.array[0][1].map((row) => {
-      const rowData = {};
-      if (row && row[0]) {
-        row[0].forEach((colData, index) => {
-          if (colData && Array.isArray(colData)) {
-            // Find the last non-null value in the array
-            const nonNullValues = colData.filter((val) => val !== null);
-            rowData[columnHeaders[index]] =
-              nonNullValues.length > 0
-                ? nonNullValues[nonNullValues.length - 1]
-                : null;
-          }
-        });
+      if (dataRows.length === 0) {
+        hasMoreData = false;
+      } else {
+        allDataRows = allDataRows.concat(dataRows);
+        lastTimestamp = newLastTimestamp;
       }
-      return rowData;
-    });
 
-    console.log('Data Rows:', dataRows);
+      // Stop fetching if there are no more rows
+      if (!newLastTimestamp) {
+        hasMoreData = false;
+      }
 
-    res.json(dataRows);
+      console.log('Fetched batch:', {
+        dataRowsLength: dataRows.length,
+        newLastTimestamp,
+      });
+    }
+
+    // let queryStr = `SELECT * FROM bfex_data.markets WHERE event_id = '${eventId}' AND market_id = '${marketId}' LIMIT 100`;
+    // const query = new Query();
+    // query.setCql(queryStr);
+
+    // try {
+    //   const result = await promisedClient.executeQuery(query);
+
+    //   // Check if any rows are returned
+    //   if (
+    //     !result.array ||
+    //     !result.array[0] ||
+    //     !result.array[0][1] ||
+    //     result.array[0][1].length === 0
+    //   ) {
+    //     return res.status(404).json({ error: 'No data found' });
+    //   }
+
+    //   // Extract column headers
+    //   const columnHeaders = result.array[0][0].map((col) => col[1]);
+    //   console.log('Column Headers:', columnHeaders);
+
+    //   // Extract data rows
+    //   const dataRows = result.array[0][1].map((row) => {
+    //     const rowData = {};
+    //     if (row && row[0]) {
+    //       row[0].forEach((colData, index) => {
+    //         if (colData && Array.isArray(colData)) {
+    //           // Find the last non-null value in the array
+    //           const nonNullValues = colData.filter((val) => val !== null);
+    //           rowData[columnHeaders[index]] =
+    //             nonNullValues.length > 0
+    //               ? nonNullValues[nonNullValues.length - 1]
+    //               : null;
+    //         }
+    //       });
+    //     }
+    //     return rowData;
+    //   });
+
+    console.log('All Data Rows:', allDataRows.length);
+    console.log('Data rows generated: ', new Date().toLocaleString());
+
+    res.json(allDataRows);
   } catch (error) {
     console.error('Failed to fetch data: ', error);
     res.status(500).json({ error: 'Failed to fetch data.' });
