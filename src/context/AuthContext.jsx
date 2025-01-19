@@ -51,11 +51,16 @@ export const AuthProvider = ({ children }) => {
         return originalFetch(url, options);
       }
 
-      // Add API_URL for relative URLs
+      // Don't add API_URL prefix for auth routes
+      if (url.startsWith('/auth/')) {
+        return originalFetch(url, options);
+      }
+
+      // Add API_URL for other relative URLs
       const fullUrl = url.startsWith('/') ? `${API_URL}${url}` : `${API_URL}/${url}`;
       
       // Add token for authenticated requests
-      if (token && (url.startsWith('/api/') || url.startsWith('/auth/'))) {
+      if (token) {
         options.headers = {
           ...options.headers,
           'Authorization': `Bearer ${token}`,
