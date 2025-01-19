@@ -11,7 +11,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      console.log('Attempting login with API_URL:', API_URL); // Debug log
+      const response = await fetch('/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
