@@ -17,16 +17,24 @@ const ADMIN_PASSWORD_HASH = env.ADMIN_PASSWORD_HASH;
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
+    console.log('Login attempt:', { username, envUsername: ADMIN_USERNAME });
+    console.log('Environment check:', { 
+      hasPasswordHash: !!ADMIN_PASSWORD_HASH,
+      hasJwtSecret: !!env.JWT_SECRET
+    });
 
     if (!username || !password) {
       return res.status(400).json({ message: 'Username and password are required' });
     }
 
     if (username !== ADMIN_USERNAME) {
+      console.log('Username mismatch');
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     const isValidPassword = await AdminUser.comparePassword(password, ADMIN_PASSWORD_HASH);
+    console.log('Password validation:', { isValid: isValidPassword });
+    
     if (!isValidPassword) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
