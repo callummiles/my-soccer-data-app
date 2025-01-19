@@ -21,7 +21,13 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 
 // Protected routes
-app.use('/api', auth, marketRoutes);
+app.use('/api', auth, (req, res, next) => {
+  // Check if DB is connected before allowing access to protected routes
+  if (!global.dbConnected && !process.env.BYPASS_DB) {
+    return res.status(503).json({ message: 'Database connection not available' });
+  }
+  next();
+}, marketRoutes);
 
 app.get('/message', (_, res) => {
   res.json({ message: 'Hello from express!' });
@@ -37,6 +43,11 @@ ViteExpress.bind(app, server);
 
 // Try to initialize DB connection
 (async () => {
+  if (process.env.BYPASS_DB === 'true') {
+    console.log('Database connection bypassed');
+    return;
+  }
+
   try {
     const query = new Query();
     const queryStr = 'SELECT * FROM bfex_data.markets LIMIT 1;';
@@ -44,7 +55,9 @@ ViteExpress.bind(app, server);
 
     const result = await promisedClient.executeQuery(query);
     console.log('Astra DB initialized. Data: ', result.array[0][0][0]);
+    global.dbConnected = true;
   } catch (e) {
     console.error('Warning: Failed to init Astra DB: ', e);
+    global.dbConnected = false;
   }
 })();
