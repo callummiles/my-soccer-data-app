@@ -26,3 +26,4 @@ secure-connect-soccer-data-db.zip
 *.njsproj
 *.sln
 *.sw?
+.vercel
