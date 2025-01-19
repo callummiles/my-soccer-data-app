@@ -4,7 +4,8 @@ import Buttons from './components/Buttons.jsx';
 import QueryForm from './components/QueryForm.jsx';
 import AutoPoller from './components/AutoPoller.jsx';
 import Login from './components/Login.jsx';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/authUtils';
 
 function MainContent() {
   const { isAuthenticated, logout } = useAuth();
