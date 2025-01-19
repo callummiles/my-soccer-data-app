@@ -7,10 +7,13 @@ import marketDataCache from '../utils/marketDataCache.js';
 
 export const fetchOnce = async (req, res) => {
   try {
+    console.log(`Fetching initial data for market at ${new Date()}`);
     const data = await fetchData();
 
     if (!marketDataCache.isMarketDataCached()) {
       marketDataCache.setMarketData(data.result.markets);
+    } else {
+      console.log('Market data already cached.');
     }
 
     const filteredMarkets = data.result.markets.filter(
@@ -24,7 +27,6 @@ export const fetchOnce = async (req, res) => {
       res.status(200).send('No open markets to store.');
     }
   } catch (e) {
-    console.error('Error fetching or storing data:', e.message);
     res.status(500).send(`Error fetching or storing data: ${e.message}`);
   }
 };
@@ -39,6 +41,7 @@ export const fetchInterval = (req, res) => {
   }
 
   const interval = parseInt(req.query.interval, 10) || 10000;
+  console.log(`Interval set to ${interval} milliseconds.`);
   const markets = marketDataCache.getMarketData();
 
   const now = new Date();
@@ -63,13 +66,17 @@ export const fetchInterval = (req, res) => {
     };
 
     if (fetchStartTime <= now) {
-      fetchMarketData();
+      console.log(
+        `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
+      );
+      fetchMarketData(market);
       const intID = setInterval(fetchMarketData, interval);
 
       intervalMap.set(market.id, intID);
     } else {
       scheduleJob(fetchStartTime, () => {
-        fetchMarketData();
+        console.log(`Job started for market ${market.id} at ${new Date()}`);
+        fetchMarketData(market);
         const intID = setInterval(fetchMarketData, interval);
 
         intervalMap.set(market.id, intID);
@@ -81,12 +88,13 @@ export const fetchInterval = (req, res) => {
 };
 
 export const endIntervalFetch = (req, res) => {
-  intervalMap.forEach((intID) => {
+  intervalMap.forEach((intID, marketId) => {
     clearInterval(intID);
+    console.log(`Interval for market ${marketId} stopped.`);
   });
 
   intervalMap.clear();
-  res.json({ message: 'All interval fetches stopped' });
+  res.send('All intervals ended.');
 };
 
 export const queryMarketData = async (req, res) => {
@@ -114,11 +122,19 @@ export const queryMarketData = async (req, res) => {
       if (!newLastTimestamp) {
         hasMoreData = false;
       }
+
+      console.log('Query batch:', {
+        dataRowsLength: dataRows.length,
+        newLastTimestamp,
+      });
     }
+
+    console.log('All Data Rows:', allDataRows.length);
+    console.log('Data rows generated: ', new Date().toLocaleString());
 
     res.json(allDataRows);
   } catch (error) {
-    console.error('Failed to fetch data:', error);
+    console.error('Failed to fetch data: ', error);
     res.status(500).json({ error: 'Failed to fetch data.' });
   }
 };

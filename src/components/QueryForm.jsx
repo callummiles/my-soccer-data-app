@@ -38,10 +38,11 @@ const QueryForm = () => {
           : item.start_time,
       }));
 
+      console.log(dataWithFormattedDates);
       setResults(dataWithFormattedDates);
     } catch (err) {
-      console.error('Error fetching data', err);
       setError('Failed to fetch data');
+      console.error('Error fetching data', err);
     } finally {
       setLoading(false);
     }
@@ -102,6 +103,43 @@ const QueryForm = () => {
                 ))}
               </tr>
             </thead>
+            {/* <tbody>
+              {results.map((result, index) => (
+                <tr key={index}>
+                  {Object.values(result).map((value, idx) => (
+                    <td key={idx}>{JSON.stringify(value)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody> */}
+            {/* <tbody>
+              {results.map((result, index) => (
+                <tr key={index}>
+                  {Object.entries(result).map(([key, value]) => (
+                    <td key={key}>
+                      {key === 'selections' ? (
+                        <ul>
+                          {value.map((selection, idx) => (
+                            <li key={idx}>
+                              {Object.entries(selection).map(
+                                ([selKey, selValue]) => (
+                                  <div key={selKey}>
+                                    <strong>{selKey}</strong>:{' '}
+                                    {JSON.stringify(selValue)}
+                                  </div>
+                                )
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        JSON.stringify(value)
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody> */}
             <tbody>
               {results.map((result, index) => (
                 <tr key={index}>
