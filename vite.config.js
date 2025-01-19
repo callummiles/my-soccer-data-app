@@ -10,11 +10,8 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        secure: false,
-      },
+      '/api': 'http://localhost:3000',
+      '/auth': 'http://localhost:3000',
       '/message': {
         target: 'http://localhost:3000',
         changeOrigin: true,

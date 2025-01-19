@@ -2,6 +2,8 @@
 import express from 'express';
 import ViteExpress from 'vite-express';
 import marketRoutes from './routes/marketRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import { auth } from './middleware/auth.js';
 import promisedClient from './config/grpcConfig.js';
 import { Query } from '@stargate-oss/stargate-grpc-node-client';
 
@@ -15,12 +17,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/api', marketRoutes);
+// Auth routes (unprotected)
+app.use('/auth', authRoutes);
+
+// Protected routes
+app.use('/api', auth, marketRoutes);
 
 app.get('/message', (_, res) => {
   res.json({ message: 'Hello from express!' });
 });
 
+const port = process.env.PORT || 3000;
+
+const server = app.listen(port, '0.0.0.0', () => {
+  console.log(`Server is listening on port ${port}...`);
+});
+
+ViteExpress.bind(app, server);
+
+// Try to initialize DB connection
 (async () => {
   try {
     const query = new Query();
@@ -29,16 +44,7 @@ app.get('/message', (_, res) => {
 
     const result = await promisedClient.executeQuery(query);
     console.log('Astra DB initialized. Data: ', result.array[0][0][0]);
-
-    const port = process.env.PORT || 3000;
-
-    const server = app.listen(port, '0.0.0.0', () => {
-      console.log(`Server is listening on port ${port}...`);
-    });
-
-    ViteExpress.bind(app, server);
   } catch (e) {
-    console.error('Failed to init Astra DB: ', e);
-    process.exit(1);
+    console.error('Warning: Failed to init Astra DB: ', e);
   }
 })();

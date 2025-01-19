@@ -9,17 +9,22 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "start": "node server/server.js",
-    "vercel-build": "vite build"
+    "vercel-build": "vite build",
+    "generate-admin": "node server/scripts/generateAdminPassword.js"
   },
+  "proxy": "http://localhost:3000",
   "dependencies": {
     "@grpc/grpc-js": "^1.10.9",
     "@stargate-oss/stargate-grpc-node-client": "^0.2.3",
+    "bcryptjs": "^2.4.3",
     "cassandra-driver": "^4.7.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
     "node-fetch": "^3.3.2",
     "node-schedule": "^2.1.1",
+    "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "vite-express": "^0.16.0"
