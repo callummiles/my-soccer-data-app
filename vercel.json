@@ -19,6 +19,10 @@
       "destination": "/server/server.js"
     },
     {
+      "source": "/auth/(.*)",
+      "destination": "/server/server.js"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

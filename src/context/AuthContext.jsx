@@ -1,6 +1,8 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -9,7 +11,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('/auth/login', {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,20 +45,23 @@ export const AuthProvider = ({ children }) => {
     const originalFetch = window.fetch;
     
     window.fetch = async function (url, options = {}) {
-      // Don't intercept auth requests to prevent infinite loop
-      if (url.startsWith('/auth/')) {
+      // Don't add API_URL for absolute URLs
+      if (url.startsWith('http')) {
         return originalFetch(url, options);
       }
 
-      // Only add token for API requests
-      if (token && url.startsWith('/api/')) {
+      // Add API_URL for relative URLs
+      const fullUrl = url.startsWith('/') ? `${API_URL}${url}` : `${API_URL}/${url}`;
+      
+      // Add token for authenticated requests
+      if (token && (url.startsWith('/api/') || url.startsWith('/auth/'))) {
         options.headers = {
           ...options.headers,
           'Authorization': `Bearer ${token}`,
         };
       }
       
-      return originalFetch(url, options);
+      return originalFetch(fullUrl, options);
     };
 
     return () => {
