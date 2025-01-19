@@ -6,22 +6,22 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem('token')
+  );
 
   const login = async (username, password) => {
     try {
-      console.log('Attempting login with API_URL:', API_URL); // Debug log
-      const response = await fetch('/auth/login', {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
       });
-      
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+        throw new Error('Login failed');
       }
 
       const data = await response.json();
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const originalFetch = window.fetch;
-    
+
     window.fetch = async function (url, options = {}) {
       // Don't add API_URL for absolute URLs
       if (url.startsWith('http')) {
@@ -56,16 +56,18 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Add API_URL for other relative URLs
-      const fullUrl = url.startsWith('/') ? `${API_URL}${url}` : `${API_URL}/${url}`;
-      
+      const fullUrl = url.startsWith('/')
+        ? `${API_URL}${url}`
+        : `${API_URL}/${url}`;
+
       // Add token for authenticated requests
       if (token) {
         options.headers = {
           ...options.headers,
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         };
       }
-      
+
       return originalFetch(fullUrl, options);
     };
 
@@ -82,5 +84,5 @@ export const AuthProvider = ({ children }) => {
 };
 
 AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };
