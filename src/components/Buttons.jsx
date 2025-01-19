@@ -1,10 +1,10 @@
-import { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { useState } from 'react';
+import { useAuth } from '../context/authUtils';
 
 const Buttons = () => {
   const [interval, setInterval] = useState('');
   const [message, setMessage] = useState('');
-  const { token } = useContext(AuthContext);
+  const { token } = useAuth();
 
   const handleFetchOnce = async () => {
     try {
