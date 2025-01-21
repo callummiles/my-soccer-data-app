@@ -4,7 +4,7 @@ const Buttons = () => {
   const [interval, setInterval] = useState('');
 
   const handleFetchOnce = () => {
-    fetch('/api/fetchOnce')
+    fetch('/fetchOnce')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response not ok.');
@@ -21,7 +21,7 @@ const Buttons = () => {
 
   const handleFetchInterval = () => {
     const intValue = interval || 10000;
-    fetch(`/api/fetchInterval?interval=${intValue}`)
+    fetch(`/fetchInterval?interval=${intValue}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response not ok.');
@@ -37,7 +37,7 @@ const Buttons = () => {
   };
 
   const handleEndIntervalFetch = () => {
-    fetch('/api/endIntervalFetch')
+    fetch('/endIntervalFetch')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response not ok.');
