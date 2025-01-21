@@ -29,7 +29,7 @@ app.use('/api', auth, (req, res, next) => {
   next();
 }, marketRoutes);
 
-app.get('/message', (_, res) => {
+app.use('/api', auth, (_, res) => {
   res.json({ message: 'Hello from express!' });
 });
 

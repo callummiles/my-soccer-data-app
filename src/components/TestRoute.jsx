@@ -8,7 +8,7 @@ const TestRoute = () => {
       console.log('Resetting message.');
       setMessage('');
     } else {
-      fetch('/message')
+      fetch('/api/message')
         .then((response) => {
           //console.log(response);
           return response.json();
