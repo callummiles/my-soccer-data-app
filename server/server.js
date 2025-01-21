@@ -21,17 +21,24 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 
 // Protected routes
-app.use('/api', auth, (req, res, next) => {
-  // Check if DB is connected before allowing access to protected routes
-  if (!global.dbConnected && !process.env.BYPASS_DB) {
-    return res.status(503).json({ message: 'Database connection not available' });
-  }
-  next();
-}, marketRoutes);
+app.use(
+  '/api',
+  auth,
+  (req, res, next) => {
+    // Check if DB is connected before allowing access to protected routes
+    if (!global.dbConnected && !process.env.BYPASS_DB) {
+      return res
+        .status(503)
+        .json({ message: 'Database connection not available' });
+    }
+    next();
+  },
+  marketRoutes
+);
 
-app.use('/api', auth, (_, res) => {
-  res.json({ message: 'Hello from express!' });
-});
+// app.use('/api', auth, (_, res) => {
+//   res.json({ message: 'Hello from express!' });
+// });
 
 const port = process.env.PORT || 3000;
 
