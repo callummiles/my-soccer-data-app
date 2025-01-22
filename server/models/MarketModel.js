@@ -11,10 +11,10 @@ export const insertMarketInDB = async (market) => {
 
     const query = new Query();
     const queryString = `INSERT INTO bfex_data.markets (
-      marketid, status, lastupdated, inplay, inplaytime,
+      marketid, status, lastupdate, inplay, inplaytime,
       volume, name, markettype, eventid, eventtypeid,
-      selections, starttime, currenttime, first_half_started,
-      first_half_ended, second_half_started, second_half_ended
+      selections, starttime, currenttime, firsthalfstart,
+      firsthalfend, secondhalfstart, secondhalfend
     ) VALUES (
       '${market.id}', 
       '${market.status}', 
