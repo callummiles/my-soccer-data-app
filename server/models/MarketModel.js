@@ -1,8 +1,5 @@
 import promisedClient from '../config/grpcConfig.js';
-import {
-  Query,
-  authenticationMetadata,
-} from '@stargate-oss/stargate-grpc-node-client';
+import { Query } from '@stargate-oss/stargate-grpc-node-client';
 
 export const insertMarketInDB = async (market) => {
   // console.log('[MarketModel] Starting insertMarketInDB...');
@@ -62,10 +59,7 @@ export const insertMarketInDB = async (market) => {
   query.setCql(queryString);
 
   // For Stargate OSS: execute the query statement
-  const response = await promisedClient.executeQuery(
-    query,
-    authenticationMetadata
-  );
+  const response = await promisedClient.executeQuery(query);
 
   console.log('[MarketModel] select executed:', response);
 };
