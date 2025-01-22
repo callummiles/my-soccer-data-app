@@ -26,12 +26,24 @@ const rawMarketsReq = {
   ],
 };
 
+// Helper to get size of object in MB
+const getObjectSize = (obj) => {
+  const size = new TextEncoder().encode(JSON.stringify(obj)).length;
+  return (size / (1024 * 1024)).toFixed(2);
+};
+
 export const fetchData = async () => {
+  const startTime = Date.now();
+  console.log('[Fetch] Starting data fetch at:', new Date().toISOString());
+  
   try {
     if (!BA_PRICES_ENDPOINT) {
       throw new Error('BA_PRICES_ENDPOINT environment variable is not set');
     }
 
+    // Prices API call
+    console.log('[Fetch] Requesting prices data...');
+    const pricesStartTime = Date.now();
     const pricesResponse = await fetch(BA_PRICES_ENDPOINT, {
       method: 'POST',
       headers: {
@@ -48,11 +60,15 @@ export const fetchData = async () => {
     }
 
     const priceData = await pricesResponse.json();
+    console.log(`[Fetch] Prices data received in ${Date.now() - pricesStartTime}ms. Size: ${getObjectSize(priceData)}MB`);
 
     if (!BA_MARKETS_ENDPOINT) {
       throw new Error('BA_MARKETS_ENDPOINT environment variable is not set');
     }
 
+    // Markets API call
+    console.log('[Fetch] Requesting markets data...');
+    const marketsStartTime = Date.now();
     const marketsResponse = await fetch(BA_MARKETS_ENDPOINT, {
       method: 'POST',
       headers: {
@@ -69,14 +85,29 @@ export const fetchData = async () => {
     }
 
     const marketData = await marketsResponse.json();
-    return mergeData(priceData, marketData);
+    console.log(`[Fetch] Markets data received in ${Date.now() - marketsStartTime}ms. Size: ${getObjectSize(marketData)}MB`);
+
+    // Merge data
+    console.log('[Fetch] Starting data merge...');
+    const mergeStartTime = Date.now();
+    const mergedData = mergeData(priceData, marketData);
+    console.log(`[Fetch] Data merged in ${Date.now() - mergeStartTime}ms. Final size: ${getObjectSize(mergedData)}MB`);
+    
+    const totalTime = Date.now() - startTime;
+    console.log(`[Fetch] Total operation completed in ${totalTime}ms`);
+    
+    return mergedData;
   } catch (error) {
     console.error('[Fetch] Fatal error:', error);
+    console.error(`[Fetch] Failed after ${Date.now() - startTime}ms`);
     throw error;
   }
 };
 
 const mergeData = (priceData, marketData) => {
+  const mergeStartTime = Date.now();
+  console.log(`[Fetch] Merging ${priceData.result.markets.length} price markets with ${marketData.result.markets.length} market details`);
+  
   const markets = priceData.result.markets.map((market) => {
     const additionalData = marketData.result.markets.find(
       (m) => m.id === market.id
@@ -95,5 +126,6 @@ const mergeData = (priceData, marketData) => {
     return market;
   });
 
+  console.log(`[Fetch] Merged ${markets.length} markets in ${Date.now() - mergeStartTime}ms`);
   return { result: { markets } };
 };
