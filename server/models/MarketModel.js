@@ -54,7 +54,7 @@ export const insertMarketInDB = async (market) => {
   // }
 
   const query = new Query();
-  const queryString = 'SELECT * FROM markets;';
+  const queryString = 'SELECT * FROM bfex_data.markets;';
   // Set the CQL statement using the string defined in the last line
   query.setCql(queryString);
 
