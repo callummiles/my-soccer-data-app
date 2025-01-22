@@ -8,12 +8,12 @@ export const insertMarketInDB = async (market) => {
   try {
     console.log('[MarketModel] Preparing values...');
     const selectionsJSON = JSON.stringify(market.selections);
-    
+
     const query = new Query();
     const queryString = `INSERT INTO bfex_data.markets (
-      market_id, status, last_updated, in_play, in_play_time,
-      volume, name, market_type, event_id, event_type_id,
-      selections, start_time, current_time, first_half_started,
+      marketid, status, last_updated, inplay, inplaytime,
+      volume, name, markettype, eventid, eventtypeid,
+      selections, starttime, currenttime, first_half_started,
       first_half_ended, second_half_started, second_half_ended
     ) VALUES (
       '${market.id}', 
@@ -42,7 +42,6 @@ export const insertMarketInDB = async (market) => {
     const response = await promisedClient.executeQuery(query);
     console.log('[MarketModel] Insert executed:', response);
     return response;
-
   } catch (error) {
     console.error('[MarketModel] Failed to insert market data:', error);
     console.error('[MarketModel] Error stack:', error.stack);
