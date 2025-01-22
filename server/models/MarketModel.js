@@ -1,50 +1,51 @@
-//import client from '../config/astraClient.js';
 import promisedClient from '../config/grpcConfig.js';
 
 export const insertMarketInDB = async (market) => {
   console.log('[MarketModel] Starting insertMarketInDB...');
   console.log('[MarketModel] Market data:', JSON.stringify(market, null, 2));
-  
-  const query = `
-    INSERT INTO markets (market_id, status, last_updated, in_play, in_play_time, volume, name, market_type, event_id, event_type_id, selections, start_time, current_time, first_half_started, first_half_ended, second_half_started, second_half_ended)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-  console.log('[MarketModel] Query:', query);
-
-  console.log('[MarketModel] Processing selections...');
-  const selectionsJSON = JSON.stringify(market.selections);
-  console.log('[MarketModel] Selections JSON:', selectionsJSON);
-
-  console.log('[MarketModel] Preparing parameters...');
-  const params = [
-    market.id,
-    market.status,
-    new Date(market.lastUpdated),
-    market.inPlay,
-    market.inPlayTime,
-    market.volume,
-    market.name,
-    market.marketType,
-    market.eventId,
-    market.eventTypeId,
-    selectionsJSON,
-    new Date(market.startTime),
-    new Date(),
-    null,
-    null,
-    null,
-    null,
-  ];
-  console.log('[MarketModel] Parameters:', params);
-  console.log('[MarketModel] Parameter types:', params.map(p => `${p === null ? 'null' : typeof p}${p instanceof Date ? ' (Date)' : ''}`));
 
   try {
-    console.log('[MarketModel] Checking promisedClient:', !!promisedClient);
-    console.log('[MarketModel] Available methods:', Object.keys(promisedClient));
+    console.log('[MarketModel] Preparing values...');
+    const selectionsJSON = JSON.stringify(market.selections);
     
+    // Create a query builder for insertion
+    const query = {
+      query: {
+        value: `INSERT INTO markets (
+          market_id, status, last_updated, in_play, in_play_time, 
+          volume, name, market_type, event_id, event_type_id, 
+          selections, start_time, current_time, first_half_started, 
+          first_half_ended, second_half_started, second_half_ended
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        parameters: {
+          values: [
+            { string: market.id },
+            { string: market.status },
+            { timestamp: new Date(market.lastUpdated).getTime() },
+            { boolean: market.inPlay },
+            { int: market.inPlayTime || 0 },
+            { double: market.volume || 0.0 },
+            { string: market.name },
+            { string: market.marketType },
+            { string: market.eventId },
+            { string: market.eventTypeId },
+            { string: selectionsJSON },
+            { timestamp: new Date(market.startTime).getTime() },
+            { timestamp: new Date().getTime() },
+            { boolean: null },
+            { boolean: null },
+            { boolean: null },
+            { boolean: null }
+          ]
+        }
+      }
+    };
+
     console.log('[MarketModel] Executing query...');
-    await promisedClient.execute(query, params, { prepare: true });
-    console.log('[MarketModel] Query executed successfully');
+    const response = await promisedClient.executeQuery(query);
+    console.log('[MarketModel] Query executed successfully:', response);
+    return response;
+
   } catch (error) {
     console.error('[MarketModel] Failed to insert market data:', error);
     console.error('[MarketModel] Error stack:', error.stack);
