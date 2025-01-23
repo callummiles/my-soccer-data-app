@@ -15,39 +15,36 @@ export const insertMarketInDB = async (market) => {
       volume, name, markettype, eventid, eventtypeid,
       selections, starttime, currenttime, firsthalfstart,
       firsthalfend, secondhalfstart, secondhalfend
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
-
-    // Set the CQL statement with parameters
-    query.setCql(queryString);
-    query.setValues([
-      market.id,
-      market.status,
-      new Date(market.lastUpdated).getTime(),
-      market.inPlay,
-      market.inPlayTime || 0,
-      market.volume || 0.0,
-      market.name,
-      market.marketType,
-      market.eventId,
-      market.eventTypeId,
-      selectionsJSON,
-      new Date(market.startTime).getTime(),
-      new Date().getTime(),
-      null,
-      null,
-      null,
+    ) VALUES (
+      '${market.id}', 
+      '${market.status}', 
+      ${new Date(market.lastUpdated).getTime()}, 
+      ${market.inPlay}, 
+      ${market.inPlayTime || 0}, 
+      ${market.volume || 0.0}, 
+      '${market.name}', 
+      '${market.marketType}', 
+      '${market.eventId}', 
+      '${market.eventTypeId}', 
+      '${selectionsJSON}', 
+      ${new Date(market.startTime).getTime()}, 
+      ${new Date().getTime()}, 
+      null, 
+      null, 
+      null, 
       null
-    ]);
+    );`;
+
+    // Set the CQL statement
+    query.setCql(queryString);
 
     // Execute the query statement
-    console.log('[MarketModel] Executing query with parameters:', query.getValues());
     const response = await promisedClient.executeQuery(query);
-    console.log('[MarketModel] Insert response:', JSON.stringify(response, null, 2));
+    console.log('[MarketModel] Insert executed:', response);
     return response;
   } catch (error) {
     console.error('[MarketModel] Failed to insert market data:', error);
     console.error('[MarketModel] Error stack:', error.stack);
-    console.error('[MarketModel] Error details:', JSON.stringify(error, null, 2));
     throw error;
   }
 };
@@ -69,7 +66,6 @@ export const insertDataInDB = async (data) => {
   } catch (error) {
     console.error('[MarketModel] Failed to insert all data:', error);
     console.error('[MarketModel] Error stack:', error.stack);
-    console.error('[MarketModel] Error details:', JSON.stringify(error, null, 2));
     throw error;
   }
 };

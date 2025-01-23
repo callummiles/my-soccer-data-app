@@ -5,7 +5,6 @@ import {
   StargateBearerToken,
   StargateClient,
   promisifyStargateClient,
-  Query,
 } from '@stargate-oss/stargate-grpc-node-client';
 
 dotenv.config();
@@ -37,20 +36,5 @@ console.log('[gRPC Config] Promisifying client...');
 const promisedClient = promisifyStargateClient(stargateClient);
 console.log('[gRPC Config] Promised client created:', !!promisedClient);
 console.log('[gRPC Config] Promised client methods:', Object.keys(promisedClient));
-
-// Add connection status check
-const checkConnection = async () => {
-  try {
-    const query = new Query();
-    query.setCql('SELECT release_version FROM system.local');
-    const response = await promisedClient.executeQuery(query);
-    console.log('[gRPC Config] Database connection test successful:', response);
-  } catch (error) {
-    console.error('[gRPC Config] Database connection test failed:', error);
-    console.error('[gRPC Config] Error details:', JSON.stringify(error, null, 2));
-  }
-};
-
-checkConnection();
 
 export default promisedClient;
