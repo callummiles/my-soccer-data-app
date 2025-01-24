@@ -60,6 +60,7 @@ export const fetchInterval = (req, res) => {
       }
     };
 
+    // Check if fetch start time is in the past
     if (fetchStartTime <= now) {
       console.log(
         `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
