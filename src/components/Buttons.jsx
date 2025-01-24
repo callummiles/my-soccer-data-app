@@ -4,7 +4,7 @@ const Buttons = () => {
   const [interval, setInterval] = useState('');
 
   const handleFetchOnce = () => {
-    fetch('/api/fetchOnce')
+    fetch('/fetchOnce')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response not ok.');
@@ -24,19 +24,19 @@ const Buttons = () => {
     
     try {
       // First try to fetch interval
-      const response = await fetch(`/api/fetchInterval?interval=${intValue}`);
+      const response = await fetch(`/fetchInterval?interval=${intValue}`);
       const data = await response.text();
       
       if (!response.ok) {
         // If we get a 400, try fetching once first
         if (response.status === 400) {
           console.log('Market data not cached, fetching initial data...');
-          const initResponse = await fetch('/api/fetchOnce');
+          const initResponse = await fetch('/fetchOnce');
           if (!initResponse.ok) {
             throw new Error('Failed to fetch initial data');
           }
           // Now try interval fetch again
-          const retryResponse = await fetch(`/api/fetchInterval?interval=${intValue}`);
+          const retryResponse = await fetch(`/fetchInterval?interval=${intValue}`);
           if (!retryResponse.ok) {
             throw new Error('Failed to start interval after initial fetch');
           }
@@ -53,7 +53,7 @@ const Buttons = () => {
   };
 
   const handleEndIntervalFetch = () => {
-    fetch('/api/endIntervalFetch')
+    fetch('/endIntervalFetch')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response not ok.');
