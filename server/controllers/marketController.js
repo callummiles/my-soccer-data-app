@@ -65,23 +65,28 @@ export const fetchInterval = (req, res) => {
       }
     };
 
-    if (fetchStartTime <= now) {
-      console.log(
-        `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
-      );
-      fetchMarketData(market);
-      const intID = setInterval(fetchMarketData, interval);
+    // if (fetchStartTime <= now) {
+    //   console.log(
+    //     `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
+    //   );
+    //   fetchMarketData(market);
+    //   const intID = setInterval(fetchMarketData, interval);
 
-      intervalMap.set(market.id, intID);
-    } else {
-      scheduleJob(fetchStartTime, () => {
-        console.log(`Job started for market ${market.id} at ${new Date()}`);
-        fetchMarketData(market);
-        const intID = setInterval(fetchMarketData, interval);
+    //   intervalMap.set(market.id, intID);
+    // } else {
+    //   scheduleJob(fetchStartTime, () => {
+    //     console.log(`Job started for market ${market.id} at ${new Date()}`);
+    //     fetchMarketData(market);
+    //     const intID = setInterval(fetchMarketData, interval);
 
-        intervalMap.set(market.id, intID);
-      });
-    }
+    //     intervalMap.set(market.id, intID);
+    //   });
+    // }
+
+    fetchMarketData(market);
+    const intID = setInterval(fetchMarketData, interval);
+
+    intervalMap.set(market.id, intID);
   });
 
   res.send('Intervals scheduled for all markets.');
