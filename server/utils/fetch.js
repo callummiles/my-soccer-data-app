@@ -40,66 +40,90 @@ export const fetchData = async () => {
     if (!BA_PRICES_ENDPOINT) {
       throw new Error('BA_PRICES_ENDPOINT environment variable is not set');
     }
+    console.log('[Fetch] Using prices endpoint:', BA_PRICES_ENDPOINT);
 
     // Prices API call
     console.log('[Fetch] Requesting prices data...');
     const pricesStartTime = Date.now();
+    console.log('[Fetch] Price request payload:', JSON.stringify(rawPricesReq));
+    
     const pricesResponse = await fetch(BA_PRICES_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(rawPricesReq),
+    }).catch(error => {
+      console.error('[Fetch] Error making prices request:', error.message);
+      throw error;
     });
 
+    console.log('[Fetch] Prices response status:', pricesResponse.status);
+    
     if (!pricesResponse.ok) {
       const errorText = await pricesResponse.text().catch(() => 'Could not read error response');
+      console.error('[Fetch] Prices request failed:', {
+        status: pricesResponse.status,
+        statusText: pricesResponse.statusText,
+        error: errorText
+      });
       throw new Error(
         `Network response not ok: ${pricesResponse.status} : ${pricesResponse.statusText} - ${errorText}`
       );
     }
 
-    const priceData = await pricesResponse.json();
+    const priceData = await pricesResponse.json().catch(error => {
+      console.error('[Fetch] Error parsing prices response:', error);
+      throw error;
+    });
     console.log(`[Fetch] Prices data received in ${Date.now() - pricesStartTime}ms. Size: ${getObjectSize(priceData)}MB`);
 
     if (!BA_MARKETS_ENDPOINT) {
       throw new Error('BA_MARKETS_ENDPOINT environment variable is not set');
     }
+    console.log('[Fetch] Using markets endpoint:', BA_MARKETS_ENDPOINT);
 
     // Markets API call
     console.log('[Fetch] Requesting markets data...');
     const marketsStartTime = Date.now();
+    console.log('[Fetch] Markets request payload:', JSON.stringify(rawMarketsReq));
+    
     const marketsResponse = await fetch(BA_MARKETS_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(rawMarketsReq),
+    }).catch(error => {
+      console.error('[Fetch] Error making markets request:', error.message);
+      throw error;
     });
+
+    console.log('[Fetch] Markets response status:', marketsResponse.status);
 
     if (!marketsResponse.ok) {
       const errorText = await marketsResponse.text().catch(() => 'Could not read error response');
+      console.error('[Fetch] Markets request failed:', {
+        status: marketsResponse.status,
+        statusText: marketsResponse.statusText,
+        error: errorText
+      });
       throw new Error(
         `Network response not ok: ${marketsResponse.status} : ${marketsResponse.statusText} - ${errorText}`
       );
     }
 
-    const marketData = await marketsResponse.json();
+    const marketData = await marketsResponse.json().catch(error => {
+      console.error('[Fetch] Error parsing markets response:', error);
+      throw error;
+    });
     console.log(`[Fetch] Markets data received in ${Date.now() - marketsStartTime}ms. Size: ${getObjectSize(marketData)}MB`);
 
-    // Merge data
-    console.log('[Fetch] Starting data merge...');
-    const mergeStartTime = Date.now();
     const mergedData = mergeData(priceData, marketData);
-    console.log(`[Fetch] Data merged in ${Date.now() - mergeStartTime}ms. Final size: ${getObjectSize(mergedData)}MB`);
-    
-    const totalTime = Date.now() - startTime;
-    console.log(`[Fetch] Total operation completed in ${totalTime}ms`);
-    
+    console.log(`[Fetch] Data fetch completed in ${Date.now() - startTime}ms`);
     return mergedData;
   } catch (error) {
-    console.error('[Fetch] Fatal error:', error);
-    console.error(`[Fetch] Failed after ${Date.now() - startTime}ms`);
+    console.error('[Fetch] Error in fetchData:', error);
     throw error;
   }
 };
