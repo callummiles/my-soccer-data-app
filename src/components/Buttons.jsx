@@ -4,7 +4,7 @@ const Buttons = () => {
   const [interval, setInterval] = useState('');
 
   const handleFetchOnce = () => {
-    fetch('/fetchOnce')
+    fetch('/api/fetchOnce')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response not ok.');
@@ -19,25 +19,41 @@ const Buttons = () => {
       });
   };
 
-  const handleFetchInterval = () => {
+  const handleFetchInterval = async () => {
     const intValue = interval || 10000;
-    fetch(`/fetchInterval?interval=${intValue}`)
-      .then((response) => {
-        if (!response.ok) {
+    
+    try {
+      // First try to fetch interval
+      const response = await fetch(`/api/fetchInterval?interval=${intValue}`);
+      const data = await response.text();
+      
+      if (!response.ok) {
+        // If we get a 400, try fetching once first
+        if (response.status === 400) {
+          console.log('Market data not cached, fetching initial data...');
+          const initResponse = await fetch('/api/fetchOnce');
+          if (!initResponse.ok) {
+            throw new Error('Failed to fetch initial data');
+          }
+          // Now try interval fetch again
+          const retryResponse = await fetch(`/api/fetchInterval?interval=${intValue}`);
+          if (!retryResponse.ok) {
+            throw new Error('Failed to start interval after initial fetch');
+          }
+          console.log('Successfully started interval after initial fetch');
+        } else {
           throw new Error('Network response not ok.');
         }
-        return response.text();
-      })
-      .then((data) => {
+      } else {
         console.log('fetchInterval response: ', data);
-      })
-      .catch((error) => {
-        console.error('Error fetching interval: ', error);
-      });
+      }
+    } catch (error) {
+      console.error('Error fetching interval: ', error);
+    }
   };
 
   const handleEndIntervalFetch = () => {
-    fetch('/endIntervalFetch')
+    fetch('/api/endIntervalFetch')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response not ok.');
