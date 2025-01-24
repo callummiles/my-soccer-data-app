@@ -21,18 +21,32 @@ const Buttons = () => {
 
   const handleFetchInterval = () => {
     const intValue = interval || 10000;
+    console.log(`[FetchInterval] Starting fetch with interval: ${intValue}ms`);
+
     fetch(`/fetchInterval?interval=${intValue}`)
       .then((response) => {
+        console.log(`[FetchInterval] Response status: ${response.status}`);
+        console.log(
+          `[FetchInterval] Response headers:`,
+          Object.fromEntries(response.headers.entries())
+        );
+
         if (!response.ok) {
-          throw new Error('Network response not ok.');
+          throw new Error(
+            `Network response not ok. Status: ${response.status}`
+          );
         }
         return response.text();
       })
       .then((data) => {
-        console.log('fetchInterval response: ', data);
+        console.log('[FetchInterval] Success response:', data);
       })
       .catch((error) => {
-        console.error('Error fetching interval: ', error);
+        console.error('[FetchInterval] Error:', {
+          message: error.message,
+          stack: error.stack,
+          type: error.constructor.name,
+        });
       });
   };
 
