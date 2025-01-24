@@ -32,30 +32,6 @@ const getObjectSize = (obj) => {
   return (size / (1024 * 1024)).toFixed(2);
 };
 
-const FETCH_TIMEOUT = 5000; // 5 seconds
-
-const fetchWithTimeout = async (url, options) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, FETCH_TIMEOUT);
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-    return response;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
-      throw new Error(`Request timed out after ${FETCH_TIMEOUT}ms`);
-    }
-    throw error;
-  }
-};
-
 export const fetchData = async () => {
   const startTime = Date.now();
   console.log('[Fetch] Starting data fetch at:', new Date().toISOString());
@@ -71,7 +47,7 @@ export const fetchData = async () => {
     const pricesStartTime = Date.now();
     console.log('[Fetch] Price request payload:', JSON.stringify(rawPricesReq));
     
-    const pricesResponse = await fetchWithTimeout(BA_PRICES_ENDPOINT, {
+    const pricesResponse = await fetch(BA_PRICES_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -112,7 +88,7 @@ export const fetchData = async () => {
     const marketsStartTime = Date.now();
     console.log('[Fetch] Markets request payload:', JSON.stringify(rawMarketsReq));
     
-    const marketsResponse = await fetchWithTimeout(BA_MARKETS_ENDPOINT, {
+    const marketsResponse = await fetch(BA_MARKETS_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
