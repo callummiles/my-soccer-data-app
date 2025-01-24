@@ -74,6 +74,7 @@ export const fetchData = async () => {
       );
     }
 
+    // Parse prices data
     const priceData = await pricesResponse.json().catch((error) => {
       console.error('[Fetch] Error parsing prices response:', error);
       throw error;
