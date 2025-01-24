@@ -43,50 +43,38 @@ export const fetchInterval = (req, res) => {
   const interval = parseInt(req.query.interval, 10) || 10000;
   console.log(`Interval set to ${interval} milliseconds.`);
   const markets = marketDataCache.getMarketData();
-
   const now = new Date();
 
   markets.forEach((market) => {
     const startTime = new Date(market.startTime);
     const fetchStartTime = new Date(startTime.getTime() - 5 * 60 * 1000);
 
-    const fetchMarketData = async () => {
+    const scheduledFetch = async () => {
       try {
-        const data = await fetchData();
-        const marketData = data.result.markets.find((m) => m.id === market.id);
-        if (marketData && marketData.status !== 'CLOSED') {
-          await insertDataInDB({ result: { markets: [marketData] } });
-        }
+        await fetchOnce({ query: { marketId: market.id } }, { send: () => {} });
       } catch (e) {
         console.error(
-          `Error fetching data for market ${market.id}: `,
+          `Error in scheduled fetch for market ${market.id}: `,
           e.message
         );
       }
     };
 
-    // if (fetchStartTime <= now) {
-    //   console.log(
-    //     `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
-    //   );
-    //   fetchMarketData(market);
-    //   const intID = setInterval(fetchMarketData, interval);
-
-    //   intervalMap.set(market.id, intID);
-    // } else {
-    //   scheduleJob(fetchStartTime, () => {
-    //     console.log(`Job started for market ${market.id} at ${new Date()}`);
-    //     fetchMarketData(market);
-    //     const intID = setInterval(fetchMarketData, interval);
-
-    //     intervalMap.set(market.id, intID);
-    //   });
-    // }
-
-    fetchMarketData(market);
-    const intID = setInterval(fetchMarketData, interval);
-
-    intervalMap.set(market.id, intID);
+    if (fetchStartTime <= now) {
+      console.log(
+        `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
+      );
+      scheduledFetch();
+      const intID = setInterval(scheduledFetch, interval);
+      intervalMap.set(market.id, intID);
+    } else {
+      scheduleJob(fetchStartTime, () => {
+        console.log(`Job started for market ${market.id} at ${new Date()}`);
+        scheduledFetch();
+        const intID = setInterval(scheduledFetch, interval);
+        intervalMap.set(market.id, intID);
+      });
+    }
   });
 
   res.send('Intervals scheduled for all markets.');
