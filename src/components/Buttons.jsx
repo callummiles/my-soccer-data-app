@@ -1,10 +1,17 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { AuthContext } from '../context/authUtils';
 
 const Buttons = () => {
   const [interval, setInterval] = useState('');
+  const { token } = useContext(AuthContext);
 
   const handleFetchOnce = () => {
-    fetch('/fetchOnce')
+    const API_URL = import.meta.env.VITE_API_URL;
+    fetch(`${API_URL}/api/fetchOnce`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response not ok.');
@@ -23,7 +30,12 @@ const Buttons = () => {
     const intValue = interval || 10000;
     console.log(`[FetchInterval] Starting fetch with interval: ${intValue}ms`);
 
-    fetch(`/fetchInterval?interval=${intValue}`)
+    const API_URL = import.meta.env.VITE_API_URL;
+    fetch(`${API_URL}/api/fetchInterval?interval=${intValue}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         console.log(`[FetchInterval] Response status: ${response.status}`);
         console.log(
@@ -51,7 +63,12 @@ const Buttons = () => {
   };
 
   const handleEndIntervalFetch = () => {
-    fetch('/endIntervalFetch')
+    const API_URL = import.meta.env.VITE_API_URL;
+    fetch(`${API_URL}/api/endIntervalFetch`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response not ok.');

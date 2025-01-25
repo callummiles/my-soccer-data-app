@@ -17,6 +17,9 @@ newtest-token.json
 soccer_data_db-token.json
 secure-connect-soccer-data-db.zip
 .env
+.env.production
+.env.local
+.env.*
 .vscode/*
 !.vscode/extensions.json
 .idea

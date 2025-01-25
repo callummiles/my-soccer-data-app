@@ -9,12 +9,39 @@ import { Query } from '@stargate-oss/stargate-grpc-node-client';
 
 import dotenv from 'dotenv';
 import cors from 'cors';
+import https from 'https';
+import fs from 'fs';
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors());
+// Configure CORS with specific origin
+const allowedOrigins = [
+  'https://my-soccer-data-app.vercel.app',
+  'http://localhost:5173',
+  'https://server.cwm18.com',
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
 app.use(express.json());
 
 // Auth routes (unprotected)
@@ -41,12 +68,68 @@ app.use(
 // });
 
 const port = process.env.PORT || 3000;
+const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 
-const server = app.listen(port, '0.0.0.0', () => {
-  console.log(`Server is listening on port ${port}...`);
-});
+let httpServer, httpsServer;
 
-ViteExpress.bind(app, server);
+if (process.env.NODE_ENV === 'production') {
+  // HTTPS Server for production
+  try {
+    console.log('Attempting to start HTTPS server...');
+    console.log('SSL Key Path:', process.env.SSL_KEY_PATH);
+    console.log('SSL Cert Path:', process.env.SSL_CERT_PATH);
+
+    const sslOptions = {
+      key: fs.readFileSync(process.env.SSL_KEY_PATH || '/app/ssl/private.key'),
+      cert: fs.readFileSync(
+        process.env.SSL_CERT_PATH || '/app/ssl/certificate.crt'
+      ),
+    };
+
+    console.log('SSL certificates loaded successfully');
+
+    // Create HTTPS server
+    httpsServer = https.createServer(sslOptions, app);
+    httpsServer.on('error', (err) => {
+      console.error('HTTPS Server Error:', err);
+    });
+
+    httpsServer.listen(443, host, () => {
+      console.log('HTTPS Server running on port 443');
+    });
+
+    // Create HTTP server that only handles redirects
+    const redirectApp = express();
+    redirectApp.use((req, res) => {
+      const host = req.headers.host?.split(':')[0] || 'server.cwm18.com';
+      const httpsUrl = `https://${host}${req.url}`;
+      console.log('Redirecting to:', httpsUrl);
+      res.redirect(301, httpsUrl);
+    });
+
+    httpServer = redirectApp.listen(8080, host, () => {
+      console.log('HTTP Server running on port 8080');
+    });
+
+    // Bind Vite to HTTPS server
+    console.log('Binding Vite to HTTPS server...');
+    ViteExpress.bind(app, httpsServer);
+    console.log('Vite bound successfully');
+  } catch (error) {
+    console.error('Error setting up HTTPS server:', error);
+    process.exit(1);
+  }
+} else {
+  // Development - HTTP only
+  httpServer = app.listen(port, host, () => {
+    console.log(
+      `Server is running on ${host}:${port} in ${
+        process.env.NODE_ENV || 'development'
+      } mode`
+    );
+  });
+  ViteExpress.bind(app, httpServer);
+}
 
 // Try to initialize DB connection
 (async () => {

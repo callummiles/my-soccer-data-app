@@ -9,7 +9,6 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "start": "node server/server.js",
-    "vercel-build": "vite build",
     "generate-admin": "node server/scripts/generateAdminPassword.js"
   },
   "proxy": "http://localhost:3000",
