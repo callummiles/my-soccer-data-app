@@ -108,7 +108,6 @@ if (process.env.NODE_ENV === 'production') {
 
     // Bind Vite to HTTPS server
     ViteExpress.bind(app, httpsServer);
-    console.log('Vite bound successfully');
   } catch (error) {
     console.error('Error setting up HTTPS server:', error);
     process.exit(1);
