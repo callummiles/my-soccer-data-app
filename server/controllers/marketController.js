@@ -62,24 +62,21 @@ export const fetchInterval = (req, res) => {
 
     // Check if fetch start time is in the past
     // If it is, start the interval immediately
-    // if (fetchStartTime <= now) {
-    //   console.log(
-    //     `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
-    //   );
-    //   scheduledFetch();
-    //   const intID = setInterval(scheduledFetch, interval);
-    //   intervalMap.set(market.id, intID);
-    // } else {
-    //   scheduleJob(fetchStartTime, () => {
-    //     console.log(`Job started for market ${market.id} at ${new Date()}`);
-    //     scheduledFetch();
-    //     const intID = setInterval(scheduledFetch, interval);
-    //     intervalMap.set(market.id, intID);
-    //   });
-    // }
-    scheduledFetch();
-    const intID = setInterval(scheduledFetch, interval);
-    intervalMap.set(market.id, intID);
+    if (fetchStartTime <= now) {
+      console.log(
+        `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
+      );
+      scheduledFetch();
+      const intID = setInterval(scheduledFetch, interval);
+      intervalMap.set(market.id, intID);
+    } else {
+      scheduleJob(fetchStartTime, () => {
+        console.log(`Job started for market ${market.id} at ${new Date()}`);
+        scheduledFetch();
+        const intID = setInterval(scheduledFetch, interval);
+        intervalMap.set(market.id, intID);
+      });
+    }
   });
 
   res.send('Intervals scheduled for all markets.');
