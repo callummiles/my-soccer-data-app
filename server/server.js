@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
 import express from 'express';
-import ViteExpress from 'vite-express';
 import marketRoutes from './routes/marketRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import { auth } from './middleware/auth.js';
@@ -63,14 +62,10 @@ app.use(
   marketRoutes
 );
 
-// app.use('/api', auth, (_, res) => {
-//   res.json({ message: 'Hello from express!' });
-// });
-
 const port = process.env.PORT || 3000;
 const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 
-let httpServer, httpsServer;
+let httpsServer; // Only used in production
 
 if (process.env.NODE_ENV === 'production') {
   // HTTPS Server for production
@@ -102,26 +97,22 @@ if (process.env.NODE_ENV === 'production') {
       res.redirect(301, httpsUrl);
     });
 
-    httpServer = redirectApp.listen(8080, host, () => {
+    redirectApp.listen(8080, host, () => {
       console.log('HTTP Server running on port 8080');
     });
-
-    // Bind Vite to HTTPS server
-    ViteExpress.bind(app, httpsServer);
   } catch (error) {
     console.error('Error setting up HTTPS server:', error);
     process.exit(1);
   }
 } else {
   // Development - HTTP only
-  httpServer = app.listen(port, host, () => {
+  app.listen(port, host, () => {
     console.log(
       `Server is running on ${host}:${port} in ${
         process.env.NODE_ENV || 'development'
       } mode`
     );
   });
-  ViteExpress.bind(app, httpServer);
 }
 
 // Try to initialize DB connection
