@@ -6,22 +6,37 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem('token')
+  );
 
   const login = async (username, password) => {
     try {
-      console.log('Attempting login with API_URL:', API_URL); // Debug log
-      const response = await fetch('/auth/login', {
+      console.log('Current window.location.origin:', window.location.origin);
+      const loginUrl = API_URL + '/auth/login';
+      console.log('Attempting login with URL:', loginUrl);
+
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
+        credentials: 'include',
       });
-      
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers));
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+        const text = await response.text();
+        console.log('Error response text:', text);
+        try {
+          const errorData = JSON.parse(text);
+          throw new Error(errorData.message || 'Login failed');
+        } catch (e) {
+          throw new Error(`Login failed: ${text}`);
+        }
       }
 
       const data = await response.json();
@@ -43,30 +58,22 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const originalFetch = window.fetch;
-    
+
     window.fetch = async function (url, options = {}) {
-      // Don't add API_URL for absolute URLs
+      // Use original fetch for absolute URLs
       if (url.startsWith('http')) {
         return originalFetch(url, options);
       }
 
-      // Don't add API_URL prefix for auth routes
-      if (url.startsWith('/auth/')) {
-        return originalFetch(url, options);
-      }
-
-      // Add API_URL for other relative URLs
-      const fullUrl = url.startsWith('/') ? `${API_URL}${url}` : `${API_URL}/${url}`;
-      
-      // Add token for authenticated requests
+      // For relative URLs, use as is since vercel.json handles the proxying
       if (token) {
         options.headers = {
           ...options.headers,
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         };
       }
-      
-      return originalFetch(fullUrl, options);
+
+      return originalFetch(url, options);
     };
 
     return () => {
@@ -82,5 +89,5 @@ export const AuthProvider = ({ children }) => {
 };
 
 AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };

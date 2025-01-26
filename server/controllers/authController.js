@@ -18,25 +18,39 @@ export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    console.log('Login attempt with username:', username);
+    console.log('Environment variables:', {
+      ADMIN_USERNAME: env.ADMIN_USERNAME,
+      HAS_PASSWORD_HASH: !!env.ADMIN_PASSWORD_HASH,
+      PASSWORD_HASH_LENGTH: env.ADMIN_PASSWORD_HASH
+        ? env.ADMIN_PASSWORD_HASH.length
+        : 0,
+    });
+
     if (!username || !password) {
-      return res.status(400).json({ message: 'Username and password are required' });
+      return res
+        .status(400)
+        .json({ message: 'Username and password are required' });
     }
 
     if (username !== ADMIN_USERNAME) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const isValidPassword = await AdminUser.comparePassword(password, ADMIN_PASSWORD_HASH);
+    console.log(
+      'About to compare password with hash. Hash exists:',
+      !!ADMIN_PASSWORD_HASH
+    );
+    const isValidPassword = await AdminUser.comparePassword(
+      password,
+      ADMIN_PASSWORD_HASH
+    );
 
     if (!isValidPassword) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign(
-      { username },
-      env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    const token = jwt.sign({ username }, env.JWT_SECRET, { expiresIn: '24h' });
 
     res.json({ token });
   } catch (error) {
