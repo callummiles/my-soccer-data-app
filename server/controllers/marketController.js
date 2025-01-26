@@ -50,7 +50,17 @@ export const fetchInterval = (req, res) => {
 
     const scheduledFetch = async () => {
       try {
-        await fetchOnce({ query: { marketId: market.id } }, { send: () => {} });
+        const mockRes = {
+          status: function (code) {
+            console.log(`[Scheduled Fetch] Status code: ${code}`);
+            return this;
+          },
+          send: function (message) {
+            console.log(`[Scheduled Fetch] Response: ${message}`);
+            return this;
+          },
+        };
+        await fetchOnce({ query: { marketId: market.id } }, mockRes);
       } catch (e) {
         console.error(
           `Error in scheduled fetch for market ${market.id}: `,
