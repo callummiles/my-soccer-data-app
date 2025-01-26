@@ -12,9 +12,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      console.log('Current window.location.origin:', window.location.origin);
       const loginUrl = API_URL + '/auth/login';
-      console.log('Attempting login with URL:', loginUrl);
 
       const response = await fetch(loginUrl, {
         method: 'POST',
@@ -25,12 +23,8 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers));
-
       if (!response.ok) {
         const text = await response.text();
-        console.log('Error response text:', text);
         try {
           const errorData = JSON.parse(text);
           throw new Error(errorData.message || 'Login failed');

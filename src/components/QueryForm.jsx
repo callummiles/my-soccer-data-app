@@ -38,7 +38,6 @@ const QueryForm = () => {
           : item.start_time,
       }));
 
-      console.log(dataWithFormattedDates);
       setResults(dataWithFormattedDates);
     } catch (err) {
       setError('Failed to fetch data');

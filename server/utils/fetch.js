@@ -34,18 +34,14 @@ const getObjectSize = (obj) => {
 
 export const fetchData = async () => {
   const startTime = Date.now();
-  console.log('[Fetch] Starting data fetch at:', new Date().toISOString());
 
   try {
     if (!BA_PRICES_ENDPOINT) {
       throw new Error('BA_PRICES_ENDPOINT environment variable is not set');
     }
-    console.log('[Fetch] Using prices endpoint:', BA_PRICES_ENDPOINT);
 
     // Prices API call
-    console.log('[Fetch] Requesting prices data...');
     const pricesStartTime = Date.now();
-    console.log('[Fetch] Price request payload:', JSON.stringify(rawPricesReq));
 
     const pricesResponse = await fetch(BA_PRICES_ENDPOINT, {
       method: 'POST',
@@ -57,8 +53,6 @@ export const fetchData = async () => {
       console.error('[Fetch] Error making prices request:', error.message);
       throw error;
     });
-
-    console.log('[Fetch] Prices response status:', pricesResponse.status);
 
     if (!pricesResponse.ok) {
       const errorText = await pricesResponse
@@ -89,15 +83,9 @@ export const fetchData = async () => {
     if (!BA_MARKETS_ENDPOINT) {
       throw new Error('BA_MARKETS_ENDPOINT environment variable is not set');
     }
-    console.log('[Fetch] Using markets endpoint:', BA_MARKETS_ENDPOINT);
 
     // Markets API call
-    console.log('[Fetch] Requesting markets data...');
     const marketsStartTime = Date.now();
-    console.log(
-      '[Fetch] Markets request payload:',
-      JSON.stringify(rawMarketsReq)
-    );
 
     const marketsResponse = await fetch(BA_MARKETS_ENDPOINT, {
       method: 'POST',
@@ -109,8 +97,6 @@ export const fetchData = async () => {
       console.error('[Fetch] Error making markets request:', error.message);
       throw error;
     });
-
-    console.log('[Fetch] Markets response status:', marketsResponse.status);
 
     if (!marketsResponse.ok) {
       const errorText = await marketsResponse

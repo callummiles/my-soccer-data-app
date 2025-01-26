@@ -16,19 +16,14 @@ const Buttons = () => {
         if (!response.ok) {
           throw new Error('Network response not ok.');
         }
-        return response.text();
-      })
-      .then((data) => {
-        console.log('fetchOnce response: ', data);
       })
       .catch((error) => {
-        console.error('Error fetching once: ', error);
+        console.error('Error fetching data:', error);
       });
   };
 
   const handleFetchInterval = () => {
     const intValue = interval || 10000;
-    console.log(`[FetchInterval] Starting fetch with interval: ${intValue}ms`);
 
     const API_URL = import.meta.env.VITE_API_URL;
     fetch(`${API_URL}/api/fetchInterval?interval=${intValue}`, {
@@ -37,28 +32,14 @@ const Buttons = () => {
       },
     })
       .then((response) => {
-        console.log(`[FetchInterval] Response status: ${response.status}`);
-        console.log(
-          `[FetchInterval] Response headers:`,
-          Object.fromEntries(response.headers.entries())
-        );
-
         if (!response.ok) {
           throw new Error(
             `Network response not ok. Status: ${response.status}`
           );
         }
-        return response.text();
-      })
-      .then((data) => {
-        console.log('[FetchInterval] Success response:', data);
       })
       .catch((error) => {
-        console.error('[FetchInterval] Error:', {
-          message: error.message,
-          stack: error.stack,
-          type: error.constructor.name,
-        });
+        console.error('Error starting interval fetch:', error);
       });
   };
 
@@ -73,13 +54,9 @@ const Buttons = () => {
         if (!response.ok) {
           throw new Error('Network response not ok.');
         }
-        return response.text();
-      })
-      .then((data) => {
-        console.log('endIntervalFetch response: ', data);
       })
       .catch((error) => {
-        console.error('Error ending interval fetch: ', error);
+        console.error('Error ending interval fetch:', error);
       });
   };
 

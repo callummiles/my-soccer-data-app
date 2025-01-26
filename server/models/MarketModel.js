@@ -2,11 +2,9 @@ import promisedClient from '../config/grpcConfig.js';
 import { Query } from '@stargate-oss/stargate-grpc-node-client';
 
 export const insertMarketInDB = async (market) => {
-  console.log('[MarketModel] Starting insertMarketInDB...');
-  console.log('[MarketModel] Market data:', JSON.stringify(market, null, 2));
+  console.log('[MarketModel] Inserting market:', market.id);
 
   try {
-    console.log('[MarketModel] Preparing values...');
     const selectionsJSON = JSON.stringify(market.selections);
 
     const query = new Query();
@@ -40,32 +38,24 @@ export const insertMarketInDB = async (market) => {
 
     // Execute the query statement
     const response = await promisedClient.executeQuery(query);
-    console.log('[MarketModel] Insert executed:', response);
     return response;
   } catch (error) {
-    console.error('[MarketModel] Failed to insert market data:', error);
-    console.error('[MarketModel] Error stack:', error.stack);
+    console.error('[MarketModel] Error inserting market:', error);
     throw error;
   }
 };
 
 export const insertDataInDB = async (data) => {
-  console.log('[MarketModel] Starting insertDataInDB...');
-  console.log('[MarketModel] Data structure:', Object.keys(data));
-  console.log('[MarketModel] Number of markets:', data.result.markets.length);
+  console.log('[MarketModel] Processing', data.result.markets.length, 'markets');
 
   const markets = data.result.markets;
   try {
-    console.log('[MarketModel] Starting market insertion loop...');
     for (const market of markets) {
-      console.log('[MarketModel] Processing market:', market.id);
       await insertMarketInDB(market);
-      console.log('[MarketModel] Successfully inserted market:', market.id);
     }
-    console.log('[MarketModel] All markets inserted successfully');
+    console.log('[MarketModel] Successfully processed all markets');
   } catch (error) {
-    console.error('[MarketModel] Failed to insert all data:', error);
-    console.error('[MarketModel] Error stack:', error.stack);
+    console.error('[MarketModel] Error processing markets:', error);
     throw error;
   }
 };

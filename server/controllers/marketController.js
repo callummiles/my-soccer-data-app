@@ -7,7 +7,6 @@ import marketDataCache from '../utils/marketDataCache.js';
 
 export const fetchOnce = async (req, res) => {
   try {
-    console.log(`Fetching initial data for market at ${new Date()}`);
     const data = await fetchData();
 
     if (!marketDataCache.isMarketDataCached()) {

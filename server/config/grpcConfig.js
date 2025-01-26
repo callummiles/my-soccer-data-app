@@ -30,11 +30,17 @@ console.log('[gRPC Config] Credentials created:', !!credentials);
 console.log('[gRPC Config] Creating Stargate client...');
 const stargateClient = new StargateClient(astra_uri, credentials);
 console.log('[gRPC Config] Stargate client created:', !!stargateClient);
-console.log('[gRPC Config] Stargate client methods:', Object.keys(stargateClient));
+console.log(
+  '[gRPC Config] Stargate client methods:',
+  Object.keys(stargateClient)
+);
 
 console.log('[gRPC Config] Promisifying client...');
 const promisedClient = promisifyStargateClient(stargateClient);
 console.log('[gRPC Config] Promised client created:', !!promisedClient);
-console.log('[gRPC Config] Promised client methods:', Object.keys(promisedClient));
+console.log(
+  '[gRPC Config] Promised client methods:',
+  Object.keys(promisedClient)
+);
 
 export default promisedClient;

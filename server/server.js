@@ -76,8 +76,6 @@ if (process.env.NODE_ENV === 'production') {
   // HTTPS Server for production
   try {
     console.log('Attempting to start HTTPS server...');
-    console.log('SSL Key Path:', process.env.SSL_KEY_PATH);
-    console.log('SSL Cert Path:', process.env.SSL_CERT_PATH);
 
     const sslOptions = {
       key: fs.readFileSync(process.env.SSL_KEY_PATH || '/app/ssl/private.key'),
@@ -85,8 +83,6 @@ if (process.env.NODE_ENV === 'production') {
         process.env.SSL_CERT_PATH || '/app/ssl/certificate.crt'
       ),
     };
-
-    console.log('SSL certificates loaded successfully');
 
     // Create HTTPS server
     httpsServer = https.createServer(sslOptions, app);
@@ -103,7 +99,6 @@ if (process.env.NODE_ENV === 'production') {
     redirectApp.use((req, res) => {
       const host = req.headers.host?.split(':')[0] || 'server.cwm18.com';
       const httpsUrl = `https://${host}${req.url}`;
-      console.log('Redirecting to:', httpsUrl);
       res.redirect(301, httpsUrl);
     });
 
@@ -112,7 +107,6 @@ if (process.env.NODE_ENV === 'production') {
     });
 
     // Bind Vite to HTTPS server
-    console.log('Binding Vite to HTTPS server...');
     ViteExpress.bind(app, httpsServer);
     console.log('Vite bound successfully');
   } catch (error) {

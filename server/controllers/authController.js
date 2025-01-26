@@ -18,15 +18,6 @@ export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    console.log('Login attempt with username:', username);
-    console.log('Environment variables:', {
-      ADMIN_USERNAME: env.ADMIN_USERNAME,
-      HAS_PASSWORD_HASH: !!env.ADMIN_PASSWORD_HASH,
-      PASSWORD_HASH_LENGTH: env.ADMIN_PASSWORD_HASH
-        ? env.ADMIN_PASSWORD_HASH.length
-        : 0,
-    });
-
     if (!username || !password) {
       return res
         .status(400)
@@ -37,10 +28,6 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    console.log(
-      'About to compare password with hash. Hash exists:',
-      !!ADMIN_PASSWORD_HASH
-    );
     const isValidPassword = await AdminUser.comparePassword(
       password,
       ADMIN_PASSWORD_HASH
