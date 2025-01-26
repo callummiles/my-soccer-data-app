@@ -1,5 +1,4 @@
 /* eslint-disable no-undef */
-import { scheduleJob } from 'node-schedule';
 import { insertDataInDB } from '../models/MarketModel.js';
 import { fetchData } from '../utils/fetch.js';
 import { queryPagedData } from '../utils/query.js';
@@ -39,60 +38,61 @@ export const fetchInterval = (req, res) => {
 
   const interval = parseInt(req.query.interval, 10) || 10000;
   console.log(`Interval set to ${interval} milliseconds.`);
-  const markets = marketDataCache.getMarketData();
-  const now = new Date();
 
-  markets.forEach((market) => {
-    const startTime = new Date(market.startTime);
-    const fetchStartTime = new Date(startTime.getTime() - 5 * 60 * 1000);
+  // Single interval function that processes all relevant markets
+  const processMarkets = async () => {
+    const markets = marketDataCache.getMarketData();
+    const now = new Date();
 
-    const scheduledFetch = async () => {
-      try {
-        const mockRes = {
-          status: function (code) {
-            console.log(`[Scheduled Fetch] Status code: ${code}`);
-            return this;
-          },
-          send: function (message) {
-            console.log(`[Scheduled Fetch] Response: ${message}`);
-            return this;
-          },
-        };
-        await fetchOnce({ query: { marketId: market.id } }, mockRes);
-      } catch (e) {
-        console.error(
-          `Error in scheduled fetch for market ${market.id}: `,
-          e.message
-        );
-      }
-    };
+    // Filter markets that are within 5 minutes of start time
+    const relevantMarkets = markets.filter((market) => {
+      const startTime = new Date(market.startTime);
+      const fetchStartTime = new Date(startTime.getTime() - 5 * 60 * 1000);
+      return fetchStartTime <= now && new Date(market.startTime) >= now;
+    });
 
-    // Check if fetch start time is in the past
-    // If it is, start the interval immediately
-    if (fetchStartTime <= now) {
-      console.log(
-        `Fetch start time for market ${market.id} is in the past. Starting interval immediately.`
-      );
-      scheduledFetch();
-      const intID = setInterval(scheduledFetch, interval);
-      intervalMap.set(market.id, intID);
-    } else {
-      scheduleJob(fetchStartTime, () => {
-        console.log(`Job started for market ${market.id} at ${new Date()}`);
-        scheduledFetch();
-        const intID = setInterval(scheduledFetch, interval);
-        intervalMap.set(market.id, intID);
-      });
+    if (relevantMarkets.length === 0) {
+      console.log('[Market Processing] No markets within time window');
+      return;
     }
-  });
 
-  res.send('Intervals scheduled for all markets.');
+    console.log(
+      `[Market Processing] Processing ${relevantMarkets.length} markets within time window`
+    );
+
+    try {
+      const mockRes = {
+        status: function (code) {
+          console.log(`[Scheduled Fetch] Status code: ${code}`);
+          return this;
+        },
+        send: function (message) {
+          console.log(`[Scheduled Fetch] Response: ${message}`);
+          return this;
+        },
+      };
+
+      // Process all relevant markets in one batch
+      await fetchOnce({ query: { markets: relevantMarkets } }, mockRes);
+    } catch (e) {
+      console.error('[Market Processing] Error processing markets:', e.message);
+    }
+  };
+
+  // Initial process
+  processMarkets();
+
+  // Set up single interval
+  const intervalId = setInterval(processMarkets, interval);
+  intervalMap.set('globalInterval', intervalId);
+
+  res.send('Global interval scheduled for market processing.');
 };
 
 export const endIntervalFetch = (req, res) => {
-  intervalMap.forEach((intID, marketId) => {
+  intervalMap.forEach((intID, key) => {
     clearInterval(intID);
-    console.log(`Interval for market ${marketId} stopped.`);
+    console.log(`Interval ${key} stopped.`);
   });
 
   intervalMap.clear();
