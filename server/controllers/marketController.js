@@ -44,15 +44,28 @@ export const fetchInterval = (req, res) => {
     const markets = marketDataCache.getMarketData();
     const now = new Date();
 
-    // Filter markets that are within 5 minutes of start time
+    // Filter markets that are within 5 minutes before start time or have started but not closed
     const relevantMarkets = markets.filter((market) => {
       const startTime = new Date(market.startTime);
       const fetchStartTime = new Date(startTime.getTime() - 5 * 60 * 1000);
-      return fetchStartTime <= now && new Date(market.startTime) >= now;
+      const isWithinWindow = fetchStartTime <= now;
+      const isNotClosed = market.status !== 'CLOSED';
+
+      if (isWithinWindow && isNotClosed) {
+        console.log(
+          `[Market ${
+            market.id
+          }] Start time: ${startTime.toISOString()}, Status: ${market.status}`
+        );
+        return true;
+      }
+      return false;
     });
 
     if (relevantMarkets.length === 0) {
-      console.log('[Market Processing] No markets within time window');
+      console.log(
+        '[Market Processing] No markets within time window or all markets closed'
+      );
       return;
     }
 
