@@ -85,8 +85,21 @@ export const fetchInterval = (req, res) => {
         },
       };
 
-      // Process all relevant markets in one batch
-      await fetchOnce({ query: { markets: relevantMarkets } }, mockRes);
+      // Only fetch data for relevant market IDs
+      const relevantMarketIds = relevantMarkets.map((market) => market.id);
+      const data = await fetchData(relevantMarketIds);
+
+      if (
+        !data.result ||
+        !data.result.markets ||
+        data.result.markets.length === 0
+      ) {
+        console.log('[Market Processing] No market data returned from fetch');
+        return;
+      }
+
+      await insertDataInDB(data);
+      mockRes.status(200).send('Data fetched and stored.');
     } catch (e) {
       console.error('[Market Processing] Error processing markets:', e.message);
     }

@@ -32,7 +32,7 @@ const getObjectSize = (obj) => {
   return (size / (1024 * 1024)).toFixed(2);
 };
 
-export const fetchData = async () => {
+export const fetchData = async (marketIds = null) => {
   const startTime = Date.now();
 
   try {
@@ -40,12 +40,17 @@ export const fetchData = async () => {
       throw new Error('BA_PRICES_ENDPOINT environment variable is not set');
     }
 
+    const pricesRequestBody = { ...rawPricesReq };
+    if (marketIds) {
+      pricesRequestBody.marketIds = marketIds;
+    }
+
     const pricesResponse = await fetch(BA_PRICES_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(rawPricesReq),
+      body: JSON.stringify(pricesRequestBody),
     }).catch((error) => {
       console.error('[Fetch] Error making prices request:', error.message);
       throw error;
@@ -76,12 +81,17 @@ export const fetchData = async () => {
       throw new Error('BA_MARKETS_ENDPOINT environment variable is not set');
     }
 
+    const marketsRequestBody = { ...rawMarketsReq };
+    if (marketIds) {
+      marketsRequestBody.marketIds = marketIds;
+    }
+
     const marketsResponse = await fetch(BA_MARKETS_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(rawMarketsReq),
+      body: JSON.stringify(marketsRequestBody),
     }).catch((error) => {
       console.error('[Fetch] Error making markets request:', error.message);
       throw error;
