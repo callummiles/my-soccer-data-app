@@ -46,7 +46,11 @@ export const insertMarketInDB = async (market) => {
 };
 
 export const insertDataInDB = async (data) => {
-  console.log('[MarketModel] Processing', data.result.markets.length, 'markets');
+  console.log(
+    '[MarketModel] Processing',
+    data.result.markets.length,
+    'markets'
+  );
 
   const markets = data.result.markets;
   try {

@@ -11,8 +11,6 @@ export const fetchOnce = async (req, res) => {
 
     if (!marketDataCache.isMarketDataCached()) {
       marketDataCache.setMarketData(data.result.markets);
-    } else {
-      console.log('Market data already cached.');
     }
 
     const filteredMarkets = data.result.markets.filter(

@@ -40,9 +40,6 @@ export const fetchData = async () => {
       throw new Error('BA_PRICES_ENDPOINT environment variable is not set');
     }
 
-    // Prices API call
-    const pricesStartTime = Date.now();
-
     const pricesResponse = await fetch(BA_PRICES_ENDPOINT, {
       method: 'POST',
       headers: {
@@ -73,19 +70,11 @@ export const fetchData = async () => {
       console.error('[Fetch] Error parsing prices response:', error);
       throw error;
     });
-    console.log(
-      `[Fetch] Prices data received in ${
-        Date.now() - pricesStartTime
-      }ms. Size: ${getObjectSize(priceData)}MB`
-    );
 
     // Markets API call
     if (!BA_MARKETS_ENDPOINT) {
       throw new Error('BA_MARKETS_ENDPOINT environment variable is not set');
     }
-
-    // Markets API call
-    const marketsStartTime = Date.now();
 
     const marketsResponse = await fetch(BA_MARKETS_ENDPOINT, {
       method: 'POST',
@@ -116,14 +105,13 @@ export const fetchData = async () => {
       console.error('[Fetch] Error parsing markets response:', error);
       throw error;
     });
-    console.log(
-      `[Fetch] Markets data received in ${
-        Date.now() - marketsStartTime
-      }ms. Size: ${getObjectSize(marketData)}MB`
-    );
 
     const mergedData = mergeData(priceData, marketData);
-    console.log(`[Fetch] Data fetch completed in ${Date.now() - startTime}ms`);
+    console.log(
+      `[Fetch] Completed in ${Date.now() - startTime}ms: ${
+        priceData.result.markets.length
+      } markets fetched and merged. Size: ${getObjectSize(mergedData)}MB`
+    );
     return mergedData;
   } catch (error) {
     console.error('[Fetch] Error in fetchData:', error);
@@ -132,11 +120,6 @@ export const fetchData = async () => {
 };
 
 const mergeData = (priceData, marketData) => {
-  const mergeStartTime = Date.now();
-  console.log(
-    `[Fetch] Merging ${priceData.result.markets.length} price markets with ${marketData.result.markets.length} market details`
-  );
-
   const markets = priceData.result.markets.map((market) => {
     const additionalData = marketData.result.markets.find(
       (m) => m.id === market.id
@@ -155,10 +138,5 @@ const mergeData = (priceData, marketData) => {
     return market;
   });
 
-  console.log(
-    `[Fetch] Merged ${markets.length} markets in ${
-      Date.now() - mergeStartTime
-    }ms`
-  );
   return { result: { markets } };
 };
