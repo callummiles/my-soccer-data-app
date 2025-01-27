@@ -5,23 +5,6 @@ const Buttons = () => {
   const [interval, setInterval] = useState('');
   const { token } = useContext(AuthContext);
 
-  const handleFetchOnce = () => {
-    const API_URL = import.meta.env.VITE_API_URL;
-    fetch(`${API_URL}/api/fetchOnce`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response not ok.');
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  };
-
   const handleFetchInterval = () => {
     const intValue = interval || 10000;
 
@@ -61,18 +44,28 @@ const Buttons = () => {
   };
 
   return (
-    <div>
-      <button onClick={handleFetchOnce}>Fetch Once</button>
-      <div>
+    <div className="flex flex-col space-y-4 p-4">
+      <div className="flex items-center space-x-4">
         <input
           type="number"
-          placeholder="Enter int (ms)"
           value={interval}
           onChange={(e) => setInterval(e.target.value)}
+          placeholder="Interval (ms)"
+          className="p-2 border rounded"
         />
-        <button onClick={handleFetchInterval}>Fetch Interval</button>
+        <button
+          onClick={handleFetchInterval}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Start Interval Fetch
+        </button>
+        <button
+          onClick={handleEndIntervalFetch}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          End Interval Fetch
+        </button>
       </div>
-      <button onClick={handleEndIntervalFetch}>End Interval Fetch</button>
     </div>
   );
 };
