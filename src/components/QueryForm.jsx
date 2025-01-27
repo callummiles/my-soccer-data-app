@@ -47,32 +47,11 @@ const QueryForm = () => {
     }
   };
 
-  const renderSelection = (selection) => {
-    return (
-      <ul>
-        {Object.entries(selection).map(([key, value]) => (
-          <li key={key}>
-            {key}:{' '}
-            {typeof value === 'object' ? (
-              <ul>
-                {Object.entries(value).map(([nestedKey, nestedValue]) => (
-                  <li key={nestedKey}>
-                    {nestedKey}: {nestedValue}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              value
-            )}
-          </li>
-        ))}
-      </ul>
-    );
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Query Cassandra Database</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">
+        Query Cassandra Database
+      </h1>
       <div className="flex gap-4 mb-6">
         <input
           type="text"
@@ -116,7 +95,10 @@ const QueryForm = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {results.map((result, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                  <tr
+                    key={index}
+                    className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                  >
                     {Object.values(result).map((value, i) => (
                       <td
                         key={i}
@@ -127,7 +109,9 @@ const QueryForm = () => {
                             {Object.entries(value).map(([key, val]) => (
                               <div key={key} className="text-sm">
                                 <span className="font-medium">{key}:</span>{' '}
-                                {typeof val === 'object' ? JSON.stringify(val) : String(val)}
+                                {typeof val === 'object'
+                                  ? JSON.stringify(val)
+                                  : String(val)}
                               </div>
                             ))}
                           </div>
