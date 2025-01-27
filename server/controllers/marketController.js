@@ -12,15 +12,11 @@ export const fetchOnce = async (req, res) => {
       marketDataCache.setMarketData(data.result.markets);
     }
 
-    const filteredMarkets = data.result.markets.filter(
-      (market) => market.status !== 'CLOSED'
-    );
-
-    if (filteredMarkets.length > 0) {
-      await insertDataInDB({ result: { markets: filteredMarkets } });
+    if (data.result.markets.length > 0) {
+      await insertDataInDB(data, true); // Pass skipTimeFilter=true to bypass time window check only
       res.status(200).send('Data fetched and stored.');
     } else {
-      res.status(200).send('No open markets to store.');
+      res.status(200).send('No markets to store.');
     }
   } catch (e) {
     res.status(500).send(`Error fetching or storing data: ${e.message}`);
@@ -77,7 +73,7 @@ export const fetchInterval = (req, res) => {
         return market;
       });
 
-      await insertDataInDB(data);
+      await insertDataInDB(data, false); // Pass skipTimeFilter=false to apply all filters
       mockRes.status(200).send('Data fetched and stored.');
     } catch (e) {
       console.error('[Market Processing] Error processing markets:', e.message);

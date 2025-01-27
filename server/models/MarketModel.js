@@ -45,17 +45,47 @@ export const insertMarketInDB = async (market) => {
   }
 };
 
-export const insertDataInDB = async (data) => {
+export const insertDataInDB = async (data, skipTimeFilter = false) => {
+  // Always filter out closed markets
+  const openMarkets = data.result.markets.filter((market) => {
+    const isNotClosed = market.status !== 'CLOSED';
+    if (!isNotClosed) {
+      console.log(`[MarketModel] Skipping closed market ${market.id}`);
+    }
+    return isNotClosed;
+  });
+
+  if (openMarkets.length === 0) {
+    console.log('[MarketModel] No open markets to process');
+    return;
+  }
+
+  if (skipTimeFilter) {
+    console.log(
+      '[MarketModel] Skipping time window filter, processing all',
+      openMarkets.length,
+      'open markets'
+    );
+    try {
+      const promises = openMarkets.map((market) => insertMarketInDB(market));
+      await Promise.all(promises);
+      console.log('[MarketModel] Successfully processed all open markets');
+      return;
+    } catch (error) {
+      console.error('[MarketModel] Error processing markets:', error);
+      throw error;
+    }
+  }
+
   const now = new Date();
 
-  // Filter markets that are within 5 minutes before start time or have started but not closed
-  const relevantMarkets = data.result.markets.filter((market) => {
+  // Filter markets that are within 5 minutes before start time or have started
+  const relevantMarkets = openMarkets.filter((market) => {
     const startTime = new Date(market.startTime);
     const fetchStartTime = new Date(startTime.getTime() - 5 * 60 * 1000);
     const isWithinWindow = fetchStartTime <= now;
-    const isNotClosed = market.status !== 'CLOSED';
 
-    if (isWithinWindow && isNotClosed) {
+    if (isWithinWindow) {
       console.log(
         `[MarketModel] Market ${
           market.id
@@ -79,14 +109,12 @@ export const insertDataInDB = async (data) => {
     '[MarketModel] Found',
     relevantMarkets.length,
     'markets within time window out of',
-    data.result.markets.length,
-    'total markets'
+    openMarkets.length,
+    'open markets'
   );
 
   if (relevantMarkets.length === 0) {
-    console.log(
-      '[MarketModel] No markets within time window or all markets closed'
-    );
+    console.log('[MarketModel] No markets within time window');
     return;
   }
 
