@@ -68,6 +68,15 @@ export const fetchInterval = (req, res) => {
         return;
       }
 
+      // Add the startTime from cached data if it's missing in fetched data
+      data.result.markets = data.result.markets.map((market) => {
+        const cachedMarket = markets.find((m) => m.id === market.id);
+        if (cachedMarket && !market.startTime) {
+          market.startTime = cachedMarket.startTime;
+        }
+        return market;
+      });
+
       await insertDataInDB(data);
       mockRes.status(200).send('Data fetched and stored.');
     } catch (e) {

@@ -57,19 +57,30 @@ export const insertDataInDB = async (data) => {
 
     if (isWithinWindow && isNotClosed) {
       console.log(
-        `[Market ${
+        `[MarketModel] Market ${
           market.id
-        }] Start time: ${startTime.toISOString()}, Status: ${market.status}`
+        } within time window - Start time: ${startTime.toISOString()}, Status: ${
+          market.status
+        }`
       );
       return true;
     }
+    console.log(
+      `[MarketModel] Market ${
+        market.id
+      } outside time window - Start time: ${startTime.toISOString()}, Status: ${
+        market.status
+      }`
+    );
     return false;
   });
 
   console.log(
-    '[MarketModel] Processing',
+    '[MarketModel] Found',
     relevantMarkets.length,
-    'markets within time window'
+    'markets within time window out of',
+    data.result.markets.length,
+    'total markets'
   );
 
   if (relevantMarkets.length === 0) {
@@ -82,7 +93,7 @@ export const insertDataInDB = async (data) => {
   try {
     const promises = relevantMarkets.map((market) => insertMarketInDB(market));
     await Promise.all(promises);
-    console.log('[MarketModel] All markets processed successfully');
+    console.log('[MarketModel] Successfully processed all relevant markets');
   } catch (error) {
     console.error('[MarketModel] Error processing markets:', error);
     throw error;
