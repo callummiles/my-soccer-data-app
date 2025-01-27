@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-  fetchOnce,
+  // fetchOnce,
   fetchInterval,
   endIntervalFetch,
   queryMarketData,
@@ -8,7 +8,7 @@ import {
 
 const router = express.Router();
 
-router.get('/fetchOnce', fetchOnce);
+// router.get('/fetchOnce', fetchOnce);
 router.get('/fetchInterval', fetchInterval);
 router.get('/endIntervalFetch', endIntervalFetch);
 router.post('/query', queryMarketData);
