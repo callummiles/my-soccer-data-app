@@ -71,96 +71,78 @@ const QueryForm = () => {
   };
 
   return (
-    <div>
-      <h1>Query Cassandra Database</h1>
-      <div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Query Cassandra Database</h1>
+      <div className="flex gap-4 mb-6">
         <input
           type="text"
           placeholder="Event ID"
           value={eventId}
           onChange={(e) => setEventId(e.target.value)}
+          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
         />
         <input
           type="text"
           placeholder="Market ID"
           value={marketId}
           onChange={(e) => setMarketId(e.target.value)}
+          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
         />
-        <button onClick={handleQuery} disabled={loading}>
+        <button
+          onClick={handleQuery}
+          disabled={loading}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+        >
           {loading ? 'Loading...' : 'Query'}
         </button>
       </div>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="text-red-600 mb-4">{error}</p>}
       <div>
-        <h2>Results</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Results</h2>
         {results.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                {Object.keys(results[0]).map((key) => (
-                  <th key={key}>{key}</th>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {Object.keys(results[0]).map((key) => (
+                    <th
+                      key={key}
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      {key}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {results.map((result, index) => (
+                  <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    {Object.values(result).map((value, i) => (
+                      <td
+                        key={i}
+                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                      >
+                        {typeof value === 'object' ? (
+                          <div className="space-y-1">
+                            {Object.entries(value).map(([key, val]) => (
+                              <div key={key} className="text-sm">
+                                <span className="font-medium">{key}:</span>{' '}
+                                {typeof val === 'object' ? JSON.stringify(val) : String(val)}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          String(value)
+                        )}
+                      </td>
+                    ))}
+                  </tr>
                 ))}
-              </tr>
-            </thead>
-            {/* <tbody>
-              {results.map((result, index) => (
-                <tr key={index}>
-                  {Object.values(result).map((value, idx) => (
-                    <td key={idx}>{JSON.stringify(value)}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody> */}
-            {/* <tbody>
-              {results.map((result, index) => (
-                <tr key={index}>
-                  {Object.entries(result).map(([key, value]) => (
-                    <td key={key}>
-                      {key === 'selections' ? (
-                        <ul>
-                          {value.map((selection, idx) => (
-                            <li key={idx}>
-                              {Object.entries(selection).map(
-                                ([selKey, selValue]) => (
-                                  <div key={selKey}>
-                                    <strong>{selKey}</strong>:{' '}
-                                    {JSON.stringify(selValue)}
-                                  </div>
-                                )
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        JSON.stringify(value)
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody> */}
-            <tbody>
-              {results.map((result, index) => (
-                <tr key={index}>
-                  {Object.entries(result).map(([key, value]) => (
-                    <td key={key}>
-                      {key === 'selections' ? (
-                        <ul>
-                          {value.map((selection, idx) => (
-                            <li key={idx}>{renderSelection(selection)}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        JSON.stringify(value)
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         ) : (
-          <p>No results found</p>
+          <p className="text-gray-500">No results found</p>
         )}
       </div>
     </div>

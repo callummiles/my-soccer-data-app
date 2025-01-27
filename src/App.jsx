@@ -13,16 +13,13 @@ function MainContent() {
   }
 
   return (
-    <div className="card">
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <h1>Soccer Data App</h1>
-        <button onClick={logout} style={{ padding: '0.5rem 1rem' }}>
+    <div className="max-w-7xl mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Soccer Data App</h1>
+        <button
+          onClick={logout}
+          className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+        >
           Logout
         </button>
       </div>
