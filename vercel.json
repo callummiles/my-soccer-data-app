@@ -22,7 +22,7 @@
   "rewrites": [
     {
       "source": "/(auth|api)/:path*",
-      "destination": "http://104.197.41.139:8080/$1/:path*"
+      "destination": "https://104.197.41.139/$1/:path*"
     }
   ]
 }
