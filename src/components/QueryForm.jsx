@@ -10,17 +10,31 @@ const QueryForm = () => {
     setLoading(true);
     setError(null);
     try {
+      const token = localStorage.getItem('token');
+      console.log('Token from localStorage:', token ? 'Present' : 'Missing');
+
+      console.log('Making request to /api/query with eventId:', eventId);
       const response = await fetch('/api/query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ eventId }),
       });
 
+      console.log('Response status:', response.status);
+      console.log(
+        'Response headers:',
+        Object.fromEntries(response.headers.entries())
+      );
+
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(
+          `Network response was not ok: ${response.status} ${errorText}`
+        );
       }
 
       const data = await response.json();

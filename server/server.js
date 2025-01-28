@@ -51,12 +51,19 @@ app.use(
   '/api',
   auth,
   (req, res, next) => {
+    console.log('DB Connection check - dbConnected:', global.dbConnected);
+    console.log('DB Connection check - BYPASS_DB:', process.env.BYPASS_DB);
+
     // Check if DB is connected before allowing access to protected routes
     if (!global.dbConnected && !process.env.BYPASS_DB) {
+      console.log(
+        'DB Connection check - Rejecting request due to no DB connection'
+      );
       return res
         .status(503)
         .json({ message: 'Database connection not available' });
     }
+    console.log('DB Connection check - Proceeding with request');
     next();
   },
   marketRoutes
