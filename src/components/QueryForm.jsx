@@ -48,6 +48,8 @@ const QueryForm = () => {
           eventtypeid: item.eventtypeid || '',
           firsthalfend: item.firsthalfend || '',
           firsthalfstart: item.firsthalfstart || '',
+          secondhalfend: item.secondhalfend || '',
+          secondhalfstart: item.secondhalfstart || '',
           inplay: item.inplay || false,
           inplaytime: formatDateTime(item.inplaytime),
           currenttime: formatDateTime(item.currenttime),
