@@ -96,9 +96,9 @@ export const endIntervalFetch = (req, res) => {
 };
 
 export const queryMarketData = async (req, res) => {
-  const { eventId, marketId } = req.body;
-  if (!eventId || !marketId) {
-    return res.status(400).json({ error: 'eventId and marketId are required' });
+  const { eventId } = req.body;
+  if (!eventId) {
+    return res.status(400).json({ error: 'eventId is required' });
   }
 
   let allDataRows = [];
@@ -108,7 +108,7 @@ export const queryMarketData = async (req, res) => {
   try {
     while (hasMoreData) {
       const { dataRows, lastTimestamp: newLastTimestamp } =
-        await queryPagedData(eventId, marketId, lastTimestamp);
+        await queryPagedData(eventId, lastTimestamp);
 
       if (dataRows.length === 0) {
         hasMoreData = false;
