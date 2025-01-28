@@ -6,14 +6,25 @@ const QueryForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const formatDateTime = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    // Convert numeric timestamp to milliseconds if needed
+    const timestampNum =
+      typeof timestamp === 'string' ? parseFloat(timestamp) : timestamp;
+    if (!isNaN(timestampNum)) {
+      const date = new Date(timestampNum);
+      if (date.getTime() > 0) {
+        return date.toLocaleString();
+      }
+    }
+    return 'N/A';
+  };
+
   const handleQuery = async () => {
     setLoading(true);
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      console.log('Token from localStorage:', token ? 'Present' : 'Missing');
-
-      console.log('Making request to /api/query with eventId:', eventId);
       const response = await fetch('/api/query', {
         method: 'POST',
         headers: {
@@ -23,60 +34,49 @@ const QueryForm = () => {
         body: JSON.stringify({ eventId }),
       });
 
-      console.log('Response status:', response.status);
-      console.log(
-        'Response headers:',
-        Object.fromEntries(response.headers.entries())
-      );
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(
-          `Network response was not ok: ${response.status} ${errorText}`
-        );
+        throw new Error(`Network response was not ok: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Raw data from server:', data);
 
-      const dataWithFormattedDates = data.map((item) => {
-        // Format date strings from Cassandra
-        const formatDate = (dateStr) => {
-          if (!dateStr) return 'N/A';
-          try {
-            const date = new Date(dateStr);
-            return !isNaN(date.getTime()) ? date.toLocaleString() : 'N/A';
-          } catch (err) {
-            console.error('Error formatting date:', dateStr, err);
-            return 'N/A';
-          }
+      // Process and format the data
+      const processedData = data.map((item) => {
+        // Create a new object with only the fields we want
+        const processed = {
+          eventid: item.eventid || '',
+          eventtypeid: item.eventtypeid || '',
+          firsthalfend: item.firsthalfend || '',
+          firsthalfstart: item.firsthalfstart || '',
+          inplay: item.inplay || false,
+          inplaytime: formatDateTime(item.inplaytime),
+          currenttime: formatDateTime(item.currenttime),
+          lastupdated: formatDateTime(item.lastupdated),
+          starttime: formatDateTime(item.starttime),
+          markettype: item.markettype || '',
+          name: item.name || '',
+          selections: item.selections || [],
         };
-
-        // Create new object with only the desired fields
-        const formattedItem = {
-          ...item,
-          currenttime: formatDate(item.currenttime),
-          starttime: formatDate(item.starttime),
-          lastupdated: formatDate(item.lastupdated),
-        };
-
-        // Remove the underscore versions of the fields
-        delete formattedItem.current_time;
-        delete formattedItem.start_time;
-        delete formattedItem.last_updated;
-
-        return formattedItem;
+        return processed;
       });
 
-      console.log('Formatted data:', dataWithFormattedDates);
-      setResults(dataWithFormattedDates);
+      setResults(processedData);
     } catch (err) {
-      setError('Failed to fetch data');
-      console.error('Error fetching data', err);
+      setError('Failed to fetch data: ' + err.message);
+      console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Filter out columns we don't want to display
+  const getDisplayColumns = (data) => {
+    if (!data || data.length === 0) return [];
+    return Object.keys(data[0]).filter(
+      (key) =>
+        !key.includes('_') && // Remove underscore columns
+        key !== 'selections' // Remove selections column as it's an array
+    );
   };
 
   return (
@@ -108,43 +108,25 @@ const QueryForm = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  {Object.keys(results[0])
-                    .filter((key) => !key.includes('_'))
-                    .map((key) => (
-                      <th
-                        key={key}
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        {key}
-                      </th>
-                    ))}
+                  {getDisplayColumns(results).map((key) => (
+                    <th
+                      key={key}
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      {key}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {results.map((result, index) => (
-                  <tr
-                    key={index}
-                    className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-                  >
-                    {Object.values(result).map((value, i) => (
+                {results.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {getDisplayColumns(results).map((key) => (
                       <td
-                        key={i}
+                        key={key}
                         className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
                       >
-                        {typeof value === 'object' ? (
-                          <div className="space-y-1">
-                            {Object.entries(value).map(([key, val]) => (
-                              <div key={key} className="text-sm">
-                                <span className="font-medium">{key}:</span>{' '}
-                                {typeof val === 'object'
-                                  ? JSON.stringify(val)
-                                  : String(val)}
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          String(value)
-                        )}
+                        {row[key]?.toString() || ''}
                       </td>
                     ))}
                   </tr>
