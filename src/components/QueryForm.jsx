@@ -46,10 +46,10 @@ const QueryForm = () => {
         const processed = {
           eventid: item.eventid || '',
           eventtypeid: item.eventtypeid || '',
-          firsthalfend: item.firsthalfend || '',
-          firsthalfstart: item.firsthalfstart || '',
-          secondhalfend: item.secondhalfend || '',
-          secondhalfstart: item.secondhalfstart || '',
+          firsthalfend: formatDateTime(item.firsthalfend),
+          firsthalfstart: formatDateTime(item.firsthalfstart),
+          secondhalfend: formatDateTime(item.secondhalfend),
+          secondhalfstart: formatDateTime(item.secondhalfstart),
           inplay: item.inplay || false,
           inplaytime: formatDateTime(item.inplaytime),
           currenttime: formatDateTime(item.currenttime),
@@ -59,8 +59,14 @@ const QueryForm = () => {
           name: item.name || '',
           selections: item.selections || [],
         };
+
+        // Log the processed item to verify the data
+        console.log('Processed item:', processed);
+
         return processed;
       });
+
+      console.log('All processed data:', processedData);
 
       setResults(processedData);
     } catch (err) {
