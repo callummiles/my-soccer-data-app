@@ -41,14 +41,11 @@ const QueryForm = () => {
       console.log('Raw data from server:', data);
 
       const dataWithFormattedDates = data.map((item) => {
-        console.log('Processing item:', item);
-        // Convert the Cassandra timestamp format (2025-01-27 19:30:00.000000+0000) to a valid JS date
+        // Format date strings from Cassandra
         const formatDate = (dateStr) => {
           if (!dateStr) return 'N/A';
           try {
-            // Replace space with T and remove microseconds
-            const isoDate = dateStr.replace(' ', 'T').replace(/\.\d+/, '');
-            const date = new Date(isoDate);
+            const date = new Date(dateStr);
             return !isNaN(date.getTime()) ? date.toLocaleString() : 'N/A';
           } catch (err) {
             console.error('Error formatting date:', dateStr, err);
@@ -56,12 +53,20 @@ const QueryForm = () => {
           }
         };
 
-        return {
+        // Create new object with only the desired fields
+        const formattedItem = {
           ...item,
-          current_time: formatDate(item.current_time),
-          last_updated: formatDate(item.last_updated),
-          start_time: formatDate(item.start_time),
+          currenttime: formatDate(item.currenttime),
+          starttime: formatDate(item.starttime),
+          lastupdated: formatDate(item.lastupdated),
         };
+
+        // Remove the underscore versions of the fields
+        delete formattedItem.current_time;
+        delete formattedItem.start_time;
+        delete formattedItem.last_updated;
+
+        return formattedItem;
       });
 
       console.log('Formatted data:', dataWithFormattedDates);
@@ -103,14 +108,16 @@ const QueryForm = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  {Object.keys(results[0]).map((key) => (
-                    <th
-                      key={key}
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      {key}
-                    </th>
-                  ))}
+                  {Object.keys(results[0])
+                    .filter((key) => !key.includes('_'))
+                    .map((key) => (
+                      <th
+                        key={key}
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        {key}
+                      </th>
+                    ))}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
