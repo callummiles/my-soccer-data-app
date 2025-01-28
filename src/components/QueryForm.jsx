@@ -51,7 +51,7 @@ const QueryForm = () => {
           inplay: item.inplay || false,
           inplaytime: formatDateTime(item.inplaytime),
           currenttime: formatDateTime(item.currenttime),
-          lastupdated: formatDateTime(item.lastupdated),
+          lastupdate: formatDateTime(item.lastupdate),
           starttime: formatDateTime(item.starttime),
           markettype: item.markettype || '',
           name: item.name || '',
@@ -72,9 +72,7 @@ const QueryForm = () => {
   // Filter out columns we don't want to display
   const getDisplayColumns = (data) => {
     if (!data || data.length === 0) return [];
-    return Object.keys(data[0]).filter(
-      (key) => !key.includes('_') // Remove underscore columns
-    );
+    return Object.keys(data[0]).filter((key) => !key.includes('_')); // Only remove underscore columns
   };
 
   return (
@@ -124,7 +122,9 @@ const QueryForm = () => {
                         key={key}
                         className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
                       >
-                        {row[key]?.toString() || ''}
+                        {key === 'selections'
+                          ? JSON.stringify(row[key])
+                          : row[key]?.toString() || ''}
                       </td>
                     ))}
                   </tr>
