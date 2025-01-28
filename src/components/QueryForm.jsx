@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 const QueryForm = () => {
   const [eventId, setEventId] = useState('');
-  const [marketId, setMarketId] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,7 +15,7 @@ const QueryForm = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ eventId, marketId }),
+        body: JSON.stringify({ eventId }),
       });
 
       if (!response.ok) {
@@ -58,13 +57,6 @@ const QueryForm = () => {
           placeholder="Event ID"
           value={eventId}
           onChange={(e) => setEventId(e.target.value)}
-          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-        />
-        <input
-          type="text"
-          placeholder="Market ID"
-          value={marketId}
-          onChange={(e) => setMarketId(e.target.value)}
           className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
         />
         <button

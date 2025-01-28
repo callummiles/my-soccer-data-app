@@ -6,7 +6,7 @@ export const queryPagedData = async (eventId, marketId, lastTimestamp) => {
     ? new Date(lastTimestamp).toISOString()
     : null;
 
-  let queryStr = `SELECT * FROM bfex_data.markets WHERE event_id = '${eventId}' AND market_id = '${marketId}'`;
+  let queryStr = `SELECT * FROM bfex_data.markets WHERE eventid = '${eventId}'`;
   if (timestampISO) {
     queryStr += ` AND current_time < '${timestampISO}'`;
   }
