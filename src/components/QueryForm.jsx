@@ -60,13 +60,8 @@ const QueryForm = () => {
           selections: item.selections || [],
         };
 
-        // Log the processed item to verify the data
-        console.log('Processed item:', processed);
-
         return processed;
       });
-
-      console.log('All processed data:', processedData);
 
       setResults(processedData);
     } catch (err) {
