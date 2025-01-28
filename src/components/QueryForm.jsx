@@ -38,20 +38,33 @@ const QueryForm = () => {
       }
 
       const data = await response.json();
+      console.log('Raw data from server:', data);
 
-      const dataWithFormattedDates = data.map((item) => ({
-        ...item,
-        current_time: item.current_time
-          ? new Date(item.current_time).toLocaleString()
-          : item.current_time,
-        last_updated: item.last_updated
-          ? new Date(item.last_updated).toLocaleString()
-          : item.last_updated,
-        start_time: item.start_time
-          ? new Date(item.start_time).toLocaleString()
-          : item.start_time,
-      }));
+      const dataWithFormattedDates = data.map((item) => {
+        console.log('Processing item:', item);
+        // Convert the Cassandra timestamp format (2025-01-27 19:30:00.000000+0000) to a valid JS date
+        const formatDate = (dateStr) => {
+          if (!dateStr) return 'N/A';
+          try {
+            // Replace space with T and remove microseconds
+            const isoDate = dateStr.replace(' ', 'T').replace(/\.\d+/, '');
+            const date = new Date(isoDate);
+            return !isNaN(date.getTime()) ? date.toLocaleString() : 'N/A';
+          } catch (err) {
+            console.error('Error formatting date:', dateStr, err);
+            return 'N/A';
+          }
+        };
 
+        return {
+          ...item,
+          current_time: formatDate(item.current_time),
+          last_updated: formatDate(item.last_updated),
+          start_time: formatDate(item.start_time),
+        };
+      });
+
+      console.log('Formatted data:', dataWithFormattedDates);
       setResults(dataWithFormattedDates);
     } catch (err) {
       setError('Failed to fetch data');
