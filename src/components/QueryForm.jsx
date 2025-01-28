@@ -73,9 +73,7 @@ const QueryForm = () => {
   const getDisplayColumns = (data) => {
     if (!data || data.length === 0) return [];
     return Object.keys(data[0]).filter(
-      (key) =>
-        !key.includes('_') && // Remove underscore columns
-        key !== 'selections' // Remove selections column as it's an array
+      (key) => !key.includes('_') // Remove underscore columns
     );
   };
 
