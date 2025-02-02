@@ -4,6 +4,7 @@ import {
   fetchInterval,
   endIntervalFetch,
   queryMarketData,
+  applyCoupon,
 } from '../controllers/marketController.js';
 
 const router = express.Router();
@@ -12,5 +13,6 @@ const router = express.Router();
 router.get('/fetchInterval', fetchInterval);
 router.get('/endIntervalFetch', endIntervalFetch);
 router.post('/query', queryMarketData);
+router.post('/applyCoupon', applyCoupon);
 
 export default router;
