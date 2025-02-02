@@ -4,6 +4,7 @@ import QueryForm from './components/QueryForm.jsx';
 import Login from './components/Login.jsx';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/authUtils';
+import MarketCouponForm from './components/MarketCouponForm.jsx';
 
 function MainContent() {
   const { isAuthenticated, logout } = useAuth();
@@ -23,6 +24,7 @@ function MainContent() {
           Logout
         </button>
       </div>
+      <MarketCouponForm />
       <Buttons />
       <QueryForm />
     </div>

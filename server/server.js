@@ -2,6 +2,7 @@
 import express from 'express';
 import marketRoutes from './routes/marketRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import couponRoutes from './routes/couponRoutes.js';
 import { auth } from './middleware/auth.js';
 import promisedClient from './config/grpcConfig.js';
 import { Query } from '@stargate-oss/stargate-grpc-node-client';
@@ -62,7 +63,8 @@ app.use(
     }
     next();
   },
-  marketRoutes
+  marketRoutes,
+  couponRoutes
 );
 
 const port = process.env.PORT || 3000;
