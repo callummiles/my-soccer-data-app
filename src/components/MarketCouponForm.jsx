@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useAuth } from '../context/authUtils';
 
 const MarketCouponForm = () => {
   const [couponName, setCouponName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const { token } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,6 +17,7 @@ const MarketCouponForm = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ couponName }),
       });

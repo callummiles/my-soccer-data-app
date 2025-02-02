@@ -19,6 +19,7 @@ const app = express();
 // Configure CORS with specific origin
 const allowedOrigins = [
   'https://my-soccer-data-app.vercel.app',
+  'https://my-soccer-data-app-git-coupon-apply-callum-miles-projects.vercel.app',
   'http://localhost:5173',
   'https://server.cwm18.com',
 ];
