@@ -5,14 +5,12 @@ const router = express.Router();
 router.post('/apply-coupon', async (req, res) => {
   try {
     const { couponName } = req.body;
+    const token = req.headers.authorization;
 
-    // Get the auth token from the request headers
-    const authToken = req.headers.authorization;
-
-    if (!authToken) {
+    if (!token) {
       return res.status(401).json({
         success: false,
-        message: 'Authentication required',
+        message: 'No token provided',
       });
     }
 
@@ -22,7 +20,7 @@ router.post('/apply-coupon', async (req, res) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: authToken, // Forward the auth token
+          Authorization: token,
         },
         body: JSON.stringify({
           couponName,
@@ -35,10 +33,19 @@ router.post('/apply-coupon', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to apply coupon');
+      const errorMessage = data.message || 'Failed to apply coupon';
+      console.error('API Error:', errorMessage);
+      return res.status(response.status).json({
+        success: false,
+        message: errorMessage,
+      });
     }
 
-    res.json({ success: true, message: 'Coupon applied successfully' });
+    res.json({
+      success: true,
+      message: 'Coupon applied successfully',
+      data,
+    });
   } catch (error) {
     console.error('Error applying coupon:', error);
     res.status(500).json({
