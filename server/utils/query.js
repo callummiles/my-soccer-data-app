@@ -1,85 +1,58 @@
 import promisedClient from '../config/grpcConfig.js';
 import { Query } from '@stargate-oss/stargate-grpc-node-client';
 
-export const queryPagedData = async (
+export const listAllEvents = async (pagingState = null, pageSize = 1000) => {
+  const query = new Query();
+  const queryStr = 'SELECT DISTINCT eventid FROM bfex_data.markets';
+  query.setCql(queryStr);
+
+  // Set the page size and paging state if provided
+  query.setPageSize(pageSize);
+  if (pagingState) {
+    query.setPagingState(pagingState);
+  }
+
+  const result = await promisedClient.executeQuery(query);
+  const rows = result.array[0][1];
+
+  // Extract event IDs from the result
+  const eventIds = rows
+    .filter((row) => row && row[0] && row[0][0])
+    .map((row) => {
+      const values = row[0][0];
+      return values[values.length - 1];
+    })
+    .filter(Boolean);
+
+  // Get the paging state for the next query
+  const nextPagingState = result.getPagingState();
+
+  return {
+    eventIds,
+    pagingState: nextPagingState,
+    hasMorePages: nextPagingState !== null,
+  };
+};
+
+export const getEventData = async (
   eventId,
-  lastTimestamp,
-  fetchEventIds = false,
+  pagingState = null,
   pageSize = 100
 ) => {
-  if (fetchEventIds) {
-    console.log('Executing distinct eventid query...');
-    const distinctEventIds = new Set(); // Use Set to avoid duplicates
-    let lastToken = '';
-    let hasMorePages = true;
-
-    while (hasMorePages) {
-      const query = new Query();
-      let queryStr =
-        'SELECT DISTINCT eventid, token(eventid) as token_value FROM bfex_data.markets';
-
-      if (lastToken) {
-        queryStr += ` WHERE token(eventid) > ${lastToken}`;
-      }
-      queryStr += ' LIMIT 1000';
-
-      query.setCql(queryStr);
-      console.log('Executing query:', queryStr);
-
-      const result = await promisedClient.executeQuery(query);
-      const rows = result.array[0][1];
-
-      console.log(`Processing batch, got ${rows.length} rows`);
-
-      if (rows.length === 0) {
-        hasMorePages = false;
-        break;
-      }
-
-      for (const row of rows) {
-        try {
-          if (row && row[0] && row[0][0]) {
-            const values = row[0][0];
-            const eventId = values[values.length - 1];
-            if (eventId) {
-              distinctEventIds.add(eventId);
-            }
-            // Get the token value for the next query
-            if (row[1] && row[1][0]) {
-              lastToken = row[1][0];
-            }
-          }
-        } catch (err) {
-          console.error('Error processing row:', err);
-        }
-      }
-
-      if (rows.length < 1000) {
-        hasMorePages = false;
-      }
-    }
-
-    const sortedEventIds = Array.from(distinctEventIds).sort();
-    console.log('Total distinct event IDs found:', sortedEventIds.length);
-    return { distinctEventIds: sortedEventIds };
-  }
-
-  const timestampISO = lastTimestamp
-    ? new Date(lastTimestamp).toISOString()
-    : null;
-
-  let queryStr = `SELECT * FROM bfex_data.markets WHERE eventid = '${eventId}'`;
-  if (timestampISO) {
-    queryStr += ` AND current_time < '${timestampISO}'`;
-  }
-  queryStr += ` LIMIT ${pageSize}`;
   const query = new Query();
+  const queryStr = `SELECT * FROM bfex_data.markets WHERE eventid = '${eventId}'`;
   query.setCql(queryStr);
+
+  // Set the page size and paging state if provided
+  query.setPageSize(pageSize);
+  if (pagingState) {
+    query.setPagingState(pagingState);
+  }
 
   const result = await promisedClient.executeQuery(query);
 
+  // Get column headers and data rows
   const columnHeaders = result.array[0][0].map((col) => col[1]);
-
   const dataRows = result.array[0][1].map((row) => {
     const rowData = {};
     if (row && row[0]) {
@@ -103,12 +76,12 @@ export const queryPagedData = async (
     return rowData;
   });
 
-  const newLastTimestamp =
-    dataRows.length > 0 ? dataRows[dataRows.length - 1].current_time : null;
+  // Get the paging state for the next query
+  const nextPagingState = result.getPagingState();
 
-  const newLastTimestampISO = newLastTimestamp
-    ? new Date(newLastTimestamp).toISOString()
-    : null;
-
-  return { dataRows, lastTimestamp: newLastTimestampISO };
+  return {
+    dataRows,
+    pagingState: nextPagingState,
+    hasMorePages: nextPagingState !== null,
+  };
 };

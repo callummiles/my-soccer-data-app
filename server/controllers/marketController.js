@@ -2,7 +2,7 @@
 import fetch from 'node-fetch';
 import { insertDataInDB } from '../models/MarketModel.js';
 import { fetchData } from '../utils/fetch.js';
-import { queryPagedData } from '../utils/query.js';
+import { listAllEvents, getEventData } from '../utils/query.js';
 import marketDataCache from '../utils/marketDataCache.js';
 
 const intervalMap = new Map();
@@ -103,28 +103,24 @@ export const queryMarketData = async (req, res) => {
   }
 
   let allDataRows = [];
-  let lastTimestamp = null;
-  let hasMoreData = true;
+  let pagingState = null;
+  let hasMorePages = true;
 
   try {
-    while (hasMoreData) {
-      const { dataRows, lastTimestamp: newLastTimestamp } =
-        await queryPagedData(eventId, lastTimestamp);
+    while (hasMorePages) {
+      const {
+        dataRows,
+        pagingState: nextPagingState,
+        hasMorePages: morePages,
+      } = await getEventData(eventId, pagingState);
 
-      if (dataRows.length === 0) {
-        hasMoreData = false;
-      } else {
-        allDataRows = allDataRows.concat(dataRows);
-        lastTimestamp = newLastTimestamp;
-      }
-
-      if (!newLastTimestamp) {
-        hasMoreData = false;
-      }
+      allDataRows = allDataRows.concat(dataRows);
+      pagingState = nextPagingState;
+      hasMorePages = morePages;
 
       console.log('Query batch:', {
         dataRowsLength: dataRows.length,
-        newLastTimestamp,
+        hasMorePages: morePages,
       });
     }
 
@@ -141,9 +137,24 @@ export const queryMarketData = async (req, res) => {
 export const getEventIds = async (req, res) => {
   try {
     console.log('Fetching event IDs...');
-    const { distinctEventIds } = await queryPagedData(null, null, true);
-    console.log('Distinct event IDs:', distinctEventIds);
-    res.json(distinctEventIds.sort()); // Sort the event IDs for better UX
+    let allEventIds = [];
+    let pagingState = null;
+    let hasMorePages = true;
+
+    while (hasMorePages) {
+      const {
+        eventIds,
+        pagingState: nextPagingState,
+        hasMorePages: morePages,
+      } = await listAllEvents(pagingState);
+
+      allEventIds = allEventIds.concat(eventIds);
+      pagingState = nextPagingState;
+      hasMorePages = morePages;
+    }
+
+    console.log('Total distinct event IDs:', allEventIds.length);
+    res.json(allEventIds.sort()); // Sort the event IDs for better UX
   } catch (error) {
     console.error('Failed to fetch event IDs: ', error);
     res.status(500).json({ error: 'Failed to fetch event IDs.' });
