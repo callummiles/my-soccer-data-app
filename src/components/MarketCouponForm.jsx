@@ -42,12 +42,12 @@ const MarketCouponForm = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto my-5 p-6 bg-gray-800 rounded-lg shadow-md">
+    <div className="w-full">
       <h3 className="text-xl font-semibold text-white mb-4">
         Apply Market Coupon
       </h3>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+        <div className="w-full">
           <select
             value={couponName}
             onChange={(e) => setCouponName(e.target.value)}
@@ -64,7 +64,7 @@ const MarketCouponForm = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full py-2 px-4 rounded-md text-white font-medium ${
+          className={`w-full px-4 py-2 rounded-md text-white font-medium ${
             isLoading
               ? 'bg-gray-700 cursor-not-allowed'
               : 'bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'

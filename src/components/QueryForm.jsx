@@ -79,22 +79,22 @@ const QueryForm = () => {
   };
 
   return (
-    <div>
+    <div className="w-full">
       <h1 className="text-2xl font-semibold text-white mb-6">
         Query Cassandra Database
       </h1>
-      <div className="flex gap-4 mb-6">
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
         <input
           type="text"
           placeholder="Event ID"
           value={eventId}
           onChange={(e) => setEventId(e.target.value)}
-          className="flex-1 px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full md:flex-1 px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
         <button
           onClick={handleQuery}
           disabled={loading}
-          className={`px-4 py-2 rounded-md text-white ${
+          className={`w-full md:w-auto px-6 py-2 rounded-md text-white whitespace-nowrap ${
             loading
               ? 'bg-gray-700 cursor-not-allowed'
               : 'bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
@@ -112,37 +112,39 @@ const QueryForm = () => {
 
       <h2 className="text-xl font-semibold text-white mb-4">Results</h2>
       {results.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-700">
-            <thead>
-              <tr>
-                {getDisplayColumns(results).map((column) => (
-                  <th
-                    key={column}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider bg-gray-800"
-                  >
-                    {column}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-700">
-              {results.map((row, rowIndex) => (
-                <tr key={rowIndex} className="bg-gray-700/50">
+        <div className="overflow-x-auto -mx-6">
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full divide-y divide-gray-700">
+              <thead>
+                <tr>
                   {getDisplayColumns(results).map((column) => (
-                    <td
-                      key={`${rowIndex}-${column}`}
-                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-200"
+                    <th
+                      key={column}
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider bg-gray-800 whitespace-nowrap"
                     >
-                      {typeof row[column] === 'boolean'
-                        ? row[column].toString()
-                        : row[column]}
-                    </td>
+                      {column}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {results.map((row, rowIndex) => (
+                  <tr key={rowIndex} className="bg-gray-700/50">
+                    {getDisplayColumns(results).map((column) => (
+                      <td
+                        key={`${rowIndex}-${column}`}
+                        className="px-6 py-4 text-sm text-gray-200 whitespace-nowrap overflow-hidden text-ellipsis"
+                      >
+                        {typeof row[column] === 'boolean'
+                          ? row[column].toString()
+                          : row[column]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
         <p className="text-gray-300">No results found</p>
