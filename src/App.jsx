@@ -4,6 +4,7 @@ import QueryForm from './components/QueryForm.jsx';
 import Login from './components/Login.jsx';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/authUtils';
+import MarketCouponForm from './components/MarketCouponForm.jsx';
 
 function MainContent() {
   const { isAuthenticated, logout } = useAuth();
@@ -23,8 +24,17 @@ function MainContent() {
           Logout
         </button>
       </div>
-      <Buttons />
-      <QueryForm />
+      <div className="grid grid-cols-2 gap-6 mb-6">
+        <div className="bg-gray-600 p-6 rounded-lg shadow-md">
+          <MarketCouponForm />
+        </div>
+        <div className="bg-gray-600 p-6 rounded-lg shadow-md">
+          <Buttons />
+        </div>
+      </div>
+      <div className="bg-gray-600 p-6 rounded-lg shadow-md">
+        <QueryForm />
+      </div>
     </div>
   );
 }

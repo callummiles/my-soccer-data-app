@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+import fetch from 'node-fetch';
 import { insertDataInDB } from '../models/MarketModel.js';
 import { fetchData } from '../utils/fetch.js';
 import { queryPagedData } from '../utils/query.js';
@@ -134,5 +135,69 @@ export const queryMarketData = async (req, res) => {
   } catch (error) {
     console.error('Failed to fetch data: ', error);
     res.status(500).json({ error: 'Failed to fetch data.' });
+  }
+};
+
+export const applyCoupon = async (req, res) => {
+  try {
+    const { couponName } = req.body;
+    const token = req.headers.authorization;
+
+    if (!token) {
+      console.log('No authorization token provided');
+      return res.status(401).json({
+        success: false,
+        message: 'No token provided',
+      });
+    }
+
+    console.log('Making request to external API...');
+    const response = await fetch(
+      'https://api.cwm18.com/api/guardian/v1.0/applyCoupon',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+        body: JSON.stringify({
+          couponName,
+          clearOption: 'DONT_CLEAR',
+          watchListNumber: 1,
+        }),
+      }
+    );
+
+    console.log('External API response status:', response.status);
+    const data = await response.json();
+    console.log('External API response data:', data);
+
+    if (!response.ok) {
+      const errorMessage = data.message || 'Failed to apply coupon';
+      console.error('API Error:', errorMessage, {
+        status: response.status,
+        data,
+      });
+      return res.status(response.status).json({
+        success: false,
+        message: errorMessage,
+      });
+    }
+
+    console.log('Successfully applied coupon');
+    res.json({
+      success: true,
+      message: 'Coupon applied successfully',
+      data,
+    });
+  } catch (error) {
+    console.error('Server error in coupon controller:', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to apply coupon',
+    });
   }
 };
