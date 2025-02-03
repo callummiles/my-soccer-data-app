@@ -49,7 +49,7 @@ export const queryPagedData = async (
   if (timestampISO) {
     queryStr += ` AND current_time < '${timestampISO}'`;
   }
-  queryStr += ' LIMIT 100';
+  //queryStr += ' LIMIT 100';
   const query = new Query();
   query.setCql(queryStr);
 
