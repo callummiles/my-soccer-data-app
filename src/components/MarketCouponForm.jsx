@@ -14,7 +14,7 @@ const MarketCouponForm = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/apply-coupon', {
+      const response = await fetch('/api/applyCoupon', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
