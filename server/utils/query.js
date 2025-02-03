@@ -13,7 +13,7 @@ export const queryPagedData = async (
 
     const result = await promisedClient.executeQuery(query);
 
-    // Log the first few rows to understand the structure
+    // Log the first row structure
     console.log(
       'First row structure:',
       JSON.stringify(result.array[0][1][0], null, 2)
@@ -24,12 +24,12 @@ export const queryPagedData = async (
     // Iterate through each row
     for (const row of result.array[0][1]) {
       try {
-        // Access the eventid value - adjust indices based on actual structure
         if (row && row[0] && row[0][0]) {
-          const value = row[0][0];
-          console.log('Processing value:', value);
-          if (value && value.length > 0) {
-            distinctEventIds.push(value.toString());
+          const values = row[0][0];
+          // Get the last non-null value from the array
+          const eventId = values[values.length - 1];
+          if (eventId) {
+            distinctEventIds.push(eventId);
           }
         }
       } catch (err) {
