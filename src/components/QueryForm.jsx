@@ -137,6 +137,11 @@ const QueryForm = () => {
                       >
                         {typeof row[column] === 'boolean'
                           ? row[column].toString()
+                          : Array.isArray(row[column])
+                          ? JSON.stringify(row[column])
+                          : typeof row[column] === 'object' &&
+                            row[column] !== null
+                          ? JSON.stringify(row[column])
                           : row[column]}
                       </td>
                     ))}
