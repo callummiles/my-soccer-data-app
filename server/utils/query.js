@@ -5,26 +5,29 @@ export const queryPagedData = async (
   eventId,
   lastTimestamp,
   fetchEventIds = false,
-  // page = 1,
   pageSize = 100
 ) => {
   if (fetchEventIds) {
     console.log('Executing distinct eventid query...');
     const distinctEventIds = new Set(); // Use Set to avoid duplicates
+    let lastToken = '';
     let hasMorePages = true;
-    let pagingState = null;
 
     while (hasMorePages) {
       const query = new Query();
-      query.setCql('SELECT DISTINCT eventid FROM bfex_data.markets LIMIT 1000');
+      let queryStr =
+        'SELECT DISTINCT eventid, token(eventid) as token_value FROM bfex_data.markets';
 
-      if (pagingState) {
-        query.setPagingState(pagingState);
+      if (lastToken) {
+        queryStr += ` WHERE token(eventid) > ${lastToken}`;
       }
+      queryStr += ' LIMIT 1000';
+
+      query.setCql(queryStr);
+      console.log('Executing query:', queryStr);
 
       const result = await promisedClient.executeQuery(query);
       const rows = result.array[0][1];
-      pagingState = result.pagingState;
 
       console.log(`Processing batch, got ${rows.length} rows`);
 
@@ -41,14 +44,17 @@ export const queryPagedData = async (
             if (eventId) {
               distinctEventIds.add(eventId);
             }
+            // Get the token value for the next query
+            if (row[1] && row[1][0]) {
+              lastToken = row[1][0];
+            }
           }
         } catch (err) {
           console.error('Error processing row:', err);
         }
       }
 
-      // If no paging state is returned, we've reached the end
-      if (!pagingState) {
+      if (rows.length < 1000) {
         hasMorePages = false;
       }
     }
