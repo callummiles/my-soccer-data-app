@@ -138,6 +138,16 @@ export const queryMarketData = async (req, res) => {
   }
 };
 
+export const getEventIds = async (req, res) => {
+  try {
+    const { distinctEventIds } = await queryPagedData(null, null, true);
+    res.json(distinctEventIds.sort()); // Sort the event IDs for better UX
+  } catch (error) {
+    console.error('Failed to fetch event IDs: ', error);
+    res.status(500).json({ error: 'Failed to fetch event IDs.' });
+  }
+};
+
 export const applyCoupon = async (req, res) => {
   try {
     const { couponName } = req.body;

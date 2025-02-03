@@ -1,7 +1,29 @@
 import promisedClient from '../config/grpcConfig.js';
 import { Query } from '@stargate-oss/stargate-grpc-node-client';
 
-export const queryPagedData = async (eventId, marketId, lastTimestamp) => {
+export const queryPagedData = async (
+  eventId,
+  lastTimestamp,
+  fetchEventIds = false
+) => {
+  if (fetchEventIds) {
+    const query = new Query();
+    query.setCql('SELECT DISTINCT eventid FROM bfex_data.markets');
+
+    const result = await promisedClient.executeQuery(query);
+
+    const distinctEventIds = result.array[0][1]
+      .map((row) => {
+        if (row && row[0] && row[0][0] && row[0][0][1]) {
+          return row[0][0][1];
+        }
+        return null;
+      })
+      .filter((id) => id !== null);
+
+    return { distinctEventIds };
+  }
+
   const timestampISO = lastTimestamp
     ? new Date(lastTimestamp).toISOString()
     : null;

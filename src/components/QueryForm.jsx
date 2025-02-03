@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const QueryForm = () => {
   const [eventId, setEventId] = useState('');
+  const [eventIds, setEventIds] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -75,6 +76,31 @@ const QueryForm = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchEventIds = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/eventIds', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setEventIds(data);
+      } catch (err) {
+        console.error('Error fetching event IDs:', err);
+        setError('Failed to fetch event IDs: ' + err.message);
+      }
+    };
+
+    fetchEventIds();
+  }, []);
+
   // Filter out columns we don't want to display
   const getDisplayColumns = (data) => {
     if (!data || data.length === 0) return [];
@@ -87,13 +113,18 @@ const QueryForm = () => {
         Query Cassandra Database
       </h1>
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Event ID"
+        <select
           value={eventId}
           onChange={(e) => setEventId(e.target.value)}
           className="w-full md:flex-1 px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
+        >
+          <option value="">Select an Event ID</option>
+          {eventIds.map((id) => (
+            <option key={id} value={id}>
+              {id}
+            </option>
+          ))}
+        </select>
         <button
           onClick={handleQuery}
           disabled={loading}
