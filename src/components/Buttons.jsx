@@ -89,7 +89,7 @@ const Buttons = () => {
             isRunning ? 'bg-green-500' : 'bg-gray-300'
           }`}
         ></div>
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-gray-900">
           {isRunning
             ? 'Interval fetch is running'
             : 'Interval fetch is stopped'}
