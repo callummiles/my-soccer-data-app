@@ -4,7 +4,9 @@ import { Query } from '@stargate-oss/stargate-grpc-node-client';
 export const queryPagedData = async (
   eventId,
   lastTimestamp,
-  fetchEventIds = false
+  fetchEventIds = false,
+  page = 1, // Add a page parameter
+  pageSize = 100 // Add a page size parameter
 ) => {
   if (fetchEventIds) {
     console.log('Executing distinct eventid query...');
@@ -18,6 +20,7 @@ export const queryPagedData = async (
       'First row structure:',
       JSON.stringify(result.array[0][1][0], null, 2)
     );
+    console.log('Total rows:', result.array[0][1].length);
 
     const distinctEventIds = [];
 
@@ -49,7 +52,7 @@ export const queryPagedData = async (
   if (timestampISO) {
     queryStr += ` AND current_time < '${timestampISO}'`;
   }
-  //queryStr += ' LIMIT 100';
+  queryStr += ` LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`; // Update pagination for regular market data queries
   const query = new Query();
   query.setCql(queryStr);
 
