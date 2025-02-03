@@ -1,7 +1,9 @@
 import { useState } from 'react';
 
+const COUPON_NAMES = ['FTS Leagues'];
+
 const MarketCouponForm = () => {
-  const [couponName, setCouponName] = useState('');
+  const [couponName, setCouponName] = useState(COUPON_NAMES[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
@@ -28,7 +30,7 @@ const MarketCouponForm = () => {
       }
 
       setMessage({ type: 'success', text: 'Coupon applied successfully!' });
-      setCouponName('');
+      setCouponName(COUPON_NAMES[0]);
     } catch (error) {
       setMessage({
         type: 'error',
@@ -46,14 +48,18 @@ const MarketCouponForm = () => {
       </h3>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <input
-            type="text"
+          <select
             value={couponName}
             onChange={(e) => setCouponName(e.target.value)}
-            placeholder="Enter coupon name"
             required
             className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
+          >
+            {COUPON_NAMES.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
         </div>
         <button
           type="submit"
