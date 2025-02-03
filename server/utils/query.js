@@ -12,16 +12,30 @@ export const queryPagedData = async (
     query.setCql('SELECT DISTINCT eventid FROM bfex_data.markets');
 
     const result = await promisedClient.executeQuery(query);
-    console.log('Query result:', result.array[0]);
 
-    const distinctEventIds = result.array[0][1]
-      .map((row) => {
-        if (row && row[0] && row[0][0] && row[0][0][1]) {
-          return row[0][0][1];
+    // Log the first few rows to understand the structure
+    console.log(
+      'First row structure:',
+      JSON.stringify(result.array[0][1][0], null, 2)
+    );
+
+    const distinctEventIds = [];
+
+    // Iterate through each row
+    for (const row of result.array[0][1]) {
+      try {
+        // Access the eventid value - adjust indices based on actual structure
+        if (row && row[0] && row[0][0]) {
+          const value = row[0][0];
+          console.log('Processing value:', value);
+          if (value && value.length > 0) {
+            distinctEventIds.push(value.toString());
+          }
         }
-        return null;
-      })
-      .filter((id) => id !== null);
+      } catch (err) {
+        console.error('Error processing row:', err);
+      }
+    }
 
     console.log('Processed distinct event IDs:', distinctEventIds);
     return { distinctEventIds };
