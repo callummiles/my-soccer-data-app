@@ -63,8 +63,7 @@ app.use(
     }
     next();
   },
-  marketRoutes,
-  couponRoutes
+  marketRoutes
 );
 
 const port = process.env.PORT || 3000;

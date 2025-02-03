@@ -24,9 +24,17 @@ function MainContent() {
           Logout
         </button>
       </div>
-      <MarketCouponForm />
-      <Buttons />
-      <QueryForm />
+      <div className="grid grid-cols-2 gap-6 mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <MarketCouponForm />
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <Buttons />
+        </div>
+      </div>
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <QueryForm />
+      </div>
     </div>
   );
 }
