@@ -5,43 +5,57 @@ export const queryPagedData = async (
   eventId,
   lastTimestamp,
   fetchEventIds = false,
-  page = 1, // Add a page parameter
-  pageSize = 100 // Add a page size parameter
+  // page = 1,
+  pageSize = 100
 ) => {
   if (fetchEventIds) {
     console.log('Executing distinct eventid query...');
-    const query = new Query();
-    query.setCql('SELECT DISTINCT eventid FROM bfex_data.markets');
+    const distinctEventIds = new Set(); // Use Set to avoid duplicates
+    let hasMorePages = true;
+    let pagingState = null;
 
-    const result = await promisedClient.executeQuery(query);
+    while (hasMorePages) {
+      const query = new Query();
+      query.setCql('SELECT DISTINCT eventid FROM bfex_data.markets LIMIT 1000');
 
-    // Log the first row structure
-    console.log(
-      'First row structure:',
-      JSON.stringify(result.array[0][1][0], null, 2)
-    );
-    console.log('Total rows:', result.array[0][1].length);
+      if (pagingState) {
+        query.setPagingState(pagingState);
+      }
 
-    const distinctEventIds = [];
+      const result = await promisedClient.executeQuery(query);
+      const rows = result.array[0][1];
+      pagingState = result.pagingState;
 
-    // Iterate through each row
-    for (const row of result.array[0][1]) {
-      try {
-        if (row && row[0] && row[0][0]) {
-          const values = row[0][0];
-          // Get the last non-null value from the array
-          const eventId = values[values.length - 1];
-          if (eventId) {
-            distinctEventIds.push(eventId);
+      console.log(`Processing batch, got ${rows.length} rows`);
+
+      if (rows.length === 0) {
+        hasMorePages = false;
+        break;
+      }
+
+      for (const row of rows) {
+        try {
+          if (row && row[0] && row[0][0]) {
+            const values = row[0][0];
+            const eventId = values[values.length - 1];
+            if (eventId) {
+              distinctEventIds.add(eventId);
+            }
           }
+        } catch (err) {
+          console.error('Error processing row:', err);
         }
-      } catch (err) {
-        console.error('Error processing row:', err);
+      }
+
+      // If no paging state is returned, we've reached the end
+      if (!pagingState) {
+        hasMorePages = false;
       }
     }
 
-    console.log('Processed distinct event IDs:', distinctEventIds);
-    return { distinctEventIds };
+    const sortedEventIds = Array.from(distinctEventIds).sort();
+    console.log('Total distinct event IDs found:', sortedEventIds.length);
+    return { distinctEventIds: sortedEventIds };
   }
 
   const timestampISO = lastTimestamp
@@ -52,7 +66,7 @@ export const queryPagedData = async (
   if (timestampISO) {
     queryStr += ` AND current_time < '${timestampISO}'`;
   }
-  queryStr += ` LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`; // Update pagination for regular market data queries
+  queryStr += ` LIMIT ${pageSize}`;
   const query = new Query();
   query.setCql(queryStr);
 
