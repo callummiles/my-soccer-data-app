@@ -42,9 +42,10 @@ const QueryForm = () => {
 
       // Process and format the data
       const processedData = data.map((item) => {
-        // Create a new object with only the fields we want
+        // Create a new object with all fields
         const processed = {
           eventid: item.eventid || '',
+          marketid: item.marketid || '',
           eventtypeid: item.eventtypeid || '',
           firsthalfend: formatDateTime(item.firsthalfend),
           firsthalfstart: formatDateTime(item.firsthalfstart),
@@ -58,6 +59,8 @@ const QueryForm = () => {
           markettype: item.markettype || '',
           name: item.name || '',
           selections: item.selections || [],
+          status: item.status || '',
+          volume: item.volume || 0,
         };
 
         return processed;
