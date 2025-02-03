@@ -40,8 +40,8 @@ const MarketCouponForm = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto my-5 p-6 bg-white rounded-lg shadow-md">
-      <h3 className="text-xl font-semibold text-gray-800 mb-4">
+    <div className="max-w-md mx-auto my-5 p-6 bg-gray-800 rounded-lg shadow-md">
+      <h3 className="text-xl font-semibold text-white mb-4">
         Apply Market Coupon
       </h3>
       <form onSubmit={handleSubmit}>
@@ -52,16 +52,16 @@ const MarketCouponForm = () => {
             onChange={(e) => setCouponName(e.target.value)}
             placeholder="Enter coupon name"
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors duration-150 ${
+          className={`w-full py-2 px-4 rounded-md text-white font-medium ${
             isLoading
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+              ? 'bg-gray-700 cursor-not-allowed'
+              : 'bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
           }`}
         >
           {isLoading ? 'Applying...' : 'Apply Coupon'}
@@ -71,8 +71,8 @@ const MarketCouponForm = () => {
         <div
           className={`mt-4 p-3 rounded-md ${
             message.type === 'error'
-              ? 'bg-red-50 text-red-700 border border-red-200'
-              : 'bg-green-50 text-green-700 border border-green-200'
+              ? 'bg-red-900/50 text-red-200 border border-red-800'
+              : 'bg-green-900/50 text-green-200 border border-green-800'
           }`}
         >
           {message.text}
