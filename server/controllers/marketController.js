@@ -140,7 +140,9 @@ export const queryMarketData = async (req, res) => {
 
 export const getEventIds = async (req, res) => {
   try {
+    console.log('Fetching event IDs...');
     const { distinctEventIds } = await queryPagedData(null, null, true);
+    console.log('Distinct event IDs:', distinctEventIds);
     res.json(distinctEventIds.sort()); // Sort the event IDs for better UX
   } catch (error) {
     console.error('Failed to fetch event IDs: ', error);

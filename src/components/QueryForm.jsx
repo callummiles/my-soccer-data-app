@@ -80,6 +80,7 @@ const QueryForm = () => {
     const fetchEventIds = async () => {
       try {
         const token = localStorage.getItem('token');
+        console.log('Fetching event IDs from server...');
         const response = await fetch('/api/eventIds', {
           method: 'GET',
           headers: {
@@ -93,6 +94,7 @@ const QueryForm = () => {
         }
 
         const data = await response.json();
+        console.log('Received event IDs:', data);
         setEventIds(data);
       } catch (err) {
         console.error('Error fetching event IDs:', err);

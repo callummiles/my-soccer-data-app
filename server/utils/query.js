@@ -7,10 +7,12 @@ export const queryPagedData = async (
   fetchEventIds = false
 ) => {
   if (fetchEventIds) {
+    console.log('Executing distinct eventid query...');
     const query = new Query();
     query.setCql('SELECT DISTINCT eventid FROM bfex_data.markets');
 
     const result = await promisedClient.executeQuery(query);
+    console.log('Query result:', result.array[0]);
 
     const distinctEventIds = result.array[0][1]
       .map((row) => {
@@ -21,6 +23,7 @@ export const queryPagedData = async (
       })
       .filter((id) => id !== null);
 
+    console.log('Processed distinct event IDs:', distinctEventIds);
     return { distinctEventIds };
   }
 
