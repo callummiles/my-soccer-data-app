@@ -25,14 +25,14 @@ function MainContent() {
         </button>
       </div>
       <div className="grid grid-cols-2 gap-6 mb-6">
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md">
+        <div className="bg-gray-600 p-6 rounded-lg shadow-md">
           <MarketCouponForm />
         </div>
-        <div className="bg-gray-100 p-6 rounded-lg shadow-md">
+        <div className="bg-gray-600 p-6 rounded-lg shadow-md">
           <Buttons />
         </div>
       </div>
-      <div className="bg-gray-100 p-6 rounded-lg shadow-md">
+      <div className="bg-gray-600 p-6 rounded-lg shadow-md">
         <QueryForm />
       </div>
     </div>
