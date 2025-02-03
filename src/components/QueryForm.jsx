@@ -81,7 +81,9 @@ const QueryForm = () => {
       try {
         const token = localStorage.getItem('token');
         const response = await fetch('/api/eventIds', {
+          method: 'GET',
           headers: {
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
